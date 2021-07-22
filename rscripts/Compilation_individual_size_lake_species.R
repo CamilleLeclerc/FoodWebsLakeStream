@@ -58,18 +58,16 @@ sort(unique(db.fish$nom_latin_taxon))
 ##----------------------------
 ## COMPILATION INDIVIDUAL SIZE
 ##----------------------------
-
-df.size <- data.frame(matrix(ncol = 16, nrow = 0))
-colnames(df.size) <- c("code_lac", "camp_annee", "id_campagne", "id_prelev_poisson", "id_point_prelev",
-                       "coord_x", "coord_y", "date_pose", "heure_pose", "date_releve", "heure_releve",
-                       "prof_min_point_pose", "prof_max_point_pose", "strate", "species", "fish")
-
-
 for (i in 1:length(unique(sub.db.fish$code_lac))){
   sub.lake <- sub.db.fish %>% filter(code_lac == unique(sub.db.fish$code_lac)[i])
   
   for (j in 1:length(unique(sub.lake$camp_annee))){
     sub.year <- sub.lake %>% filter(camp_annee == unique(sub.lake$camp_annee)[j])
+    
+    df.size <- data.frame(matrix(ncol = 16, nrow = 0))
+    colnames(df.size) <- c("code_lac", "camp_annee", "id_campagne", "id_prelev_poisson", "id_point_prelev",
+                           "coord_x", "coord_y", "date_pose", "heure_pose", "date_releve", "heure_releve",
+                           "prof_min_point_pose", "prof_max_point_pose", "strate", "species", "fish")
     
     for (k in 1:length(unique(sub.year$id_prelev_poisson))){
         sub.strate <- sub.year %>% filter(id_prelev_poisson == unique(sub.year$id_prelev_poisson)[k])
@@ -124,10 +122,14 @@ for (i in 1:length(unique(sub.db.fish$code_lac))){
         
         print(c(i, j, k))
     }
+    
+    df.size.final <- apply(df.size,2,as.character)
+    write.table(df.size.final, paste0("outputs/lake_individual_size/Indsize_", unique(sub.year$code_lac), "_", unique(sub.year$camp_annee),".txt"), row.names = FALSE)
+    
   }
 }
 
-rm(i, j, k, sub.lake, sub.year, sub.strate, sub.size)
-df.size.final <- apply(df.size,2,as.character)
-write.table(df.size.final, "outputs/lake_individual_size.txt", row.names = FALSE)
+rm(i, j, k, sub.lake, sub.year, sub.strate, sub.size, df.size, df.size.final)
+
+
 
