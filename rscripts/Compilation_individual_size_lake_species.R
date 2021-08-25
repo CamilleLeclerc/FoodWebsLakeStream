@@ -42,7 +42,7 @@ sort(unique(db.fish$nom_latin_taxon))
   db.fish <- db.fish %>% filter(!(nom_latin_taxon %in% c("Astacus astacus", "Eriocheir sinensis", "Orconectes limosus", "Pacifastacus leniusculus", "Procambarus clarkii")))
 
   ##Analysis dataset  
-  sub.db.fish <- unique(db.fish %>% select(code_lac, camp_annee, id_campagne, id_prelev_poisson, id_point_prelev, coord_x, coord_y, date_pose, heure_pose, date_releve, heure_releve, prof_min_point_pose, prof_max_point_pose, strate, ident_lot, nom_latin_taxon, cd_type_lot, effectif_lot, taille_min_lot, taille_max_lot, taille_ind, type_longueur))
+  sub.db.fish <- unique(db.fish %>% select(code_lac, camp_annee, id_campagne, id_prelev_poisson, id_point_prelev, coord_x, coord_y, cd_proj, date_pose, heure_pose, date_releve, heure_releve, prof_min_point_pose, prof_max_point_pose, strate, ident_lot, nom_latin_taxon, cd_type_lot, effectif_lot, taille_min_lot, taille_max_lot, taille_ind, type_longueur))
   unique(sub.db.fish$cd_type_lot)
   sub.db.fish$cd_type_lot[sub.db.fish$cd_type_lot == "L"] <- "S/L"
   sub.db.fish$cd_type_lot[sub.db.fish$cd_type_lot == "S"] <- "S/L"
@@ -64,9 +64,9 @@ for (i in 1:length(unique(sub.db.fish$code_lac))){
   for (j in 1:length(unique(sub.lake$camp_annee))){
     sub.year <- sub.lake %>% filter(camp_annee == unique(sub.lake$camp_annee)[j])
     
-    df.size <- data.frame(matrix(ncol = 16, nrow = 0))
+    df.size <- data.frame(matrix(ncol = 17, nrow = 0))
     colnames(df.size) <- c("code_lac", "camp_annee", "id_campagne", "id_prelev_poisson", "id_point_prelev",
-                           "coord_x", "coord_y", "date_pose", "heure_pose", "date_releve", "heure_releve",
+                           "coord_x", "coord_y", "cd_proj", "date_pose", "heure_pose", "date_releve", "heure_releve",
                            "prof_min_point_pose", "prof_max_point_pose", "strate", "species", "fish")
     
     for (k in 1:length(unique(sub.year$id_prelev_poisson))){
@@ -90,7 +90,7 @@ for (i in 1:length(unique(sub.db.fish$code_lac))){
         sub.strate <- sub.strate[!(sub.strate$cd_type_lot=="I" & is.na(sub.strate$taille_ind)),]
         
         sub.lot <- unique(sub.strate %>% drop_na(effectif_lot) %>% select(code_lac, camp_annee, id_campagne, id_prelev_poisson, id_point_prelev,
-                                                                          coord_x, coord_y, date_pose, heure_pose, date_releve, heure_releve,
+                                                                          coord_x, coord_y, cd_proj, date_pose, heure_pose, date_releve, heure_releve,
                                                                           prof_min_point_pose, prof_max_point_pose, strate,ident_lot, nom_latin_taxon, cd_type_lot, effectif_lot, taille_min_lot, taille_max_lot))
 
         sub.measure <- unique(sub.strate %>% drop_na(ident_lot | taille_ind) %>% select(ident_lot, taille_ind))
@@ -110,12 +110,12 @@ for (i in 1:length(unique(sub.db.fish$code_lac))){
         colnames(sub.size) <- c("id", "species", "fish")
         sub.size <- sub.size %>% select(species, fish)
         sub.size[ , c("code_lac", "camp_annee", "id_campagne", "id_prelev_poisson", "id_point_prelev",
-                      "coord_x", "coord_y", "date_pose", "heure_pose", "date_releve", "heure_releve",
+                      "coord_x", "coord_y", "cd_proj", "date_pose", "heure_pose", "date_releve", "heure_releve",
                       "prof_min_point_pose", "prof_max_point_pose", "strate")] <- unique(sub.strate %>% select(code_lac, camp_annee, id_campagne, id_prelev_poisson, id_point_prelev,
-                                                                                                               coord_x, coord_y, date_pose, heure_pose, date_releve, heure_releve,
+                                                                                                               coord_x, coord_y, cd_proj, date_pose, heure_pose, date_releve, heure_releve,
                                                                                                                prof_min_point_pose, prof_max_point_pose, strate))
         sub.size <- sub.size %>% select(code_lac, camp_annee, id_campagne, id_prelev_poisson, id_point_prelev,
-                                        coord_x, coord_y, date_pose, heure_pose, date_releve, heure_releve,
+                                        coord_x, coord_y, cd_proj, date_pose, heure_pose, date_releve, heure_releve,
                                         prof_min_point_pose, prof_max_point_pose, strate, species, fish)
         
         df.size <- rbind(df.size, sub.size)
@@ -123,6 +123,10 @@ for (i in 1:length(unique(sub.db.fish$code_lac))){
         print(c(i, j, k))
     }
     
+    df.size$date_pose <- gsub("-", ".", paste(df.size$date_pose))
+    df.size$date_releve <- gsub("-", ".", paste(df.size$date_releve))
+    df.size$heure_pose <- gsub(":", ".", paste(df.size$heure_pose))
+    df.size$heure_releve <- gsub(":", ".", paste(df.size$heure_releve))
     df.size.final <- apply(df.size,2,as.character)
     write.table(df.size.final, paste0("outputs/lake_individual_size/Indsize_", unique(sub.year$code_lac), "_", unique(sub.year$camp_annee),".txt"), row.names = FALSE)
     
