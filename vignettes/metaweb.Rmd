@@ -1,0 +1,270 @@
+---
+title: "metaweb"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{metaweb}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+install.packages("~/Documents/post-these/packages/sizeTrophicInteractions_0.0.0.9000.tar.gz")
+library(sizeTrophicInteractions)
+
+mypath <- rprojroot::find_package_root_file
+source(mypath("R", "misc.R"))
+```
+
+
+```{r load}
+myload(diet_shift, ind_size, dir = mypath("data"))
+```
+
+# Get species names
+
+```{r}
+sp_in_pond <- unique(ind_size$species)
+```
+
+
+### Fix name differences
+```{r}
+species %<>%
+  mutate(
+    latin_name = str_replace_all(latin_name, " ", "_"),
+  )
+species$latin_name_fixed <- species$latin_name
+species[species$latin_name_fixed == "Gasterosteus_aculeatus_aculeatus", ]$latin_name_fixed <- 
+  "Gasterosteus_aculeatus"
+species[species$latin_name_fixed == "Gymnocephalus_cernuus", ]$latin_name_fixed <- 
+  "Gymnocephalus_cernua"
+#species[species$latin_name_fixed == "Salmo_trutta_fario", ]$latin_name_fixed <- 
+  #"Salmo_trutta"
+```
+
+
+```{r}
+species %>%
+  filter(latin_name_fixed %in% sp_in_pond)
+sp_in_pond[which(!sp_in_pond %in% species$latin_name_fixed)]
+```
+
+
+### Species in ponds that are not in diet shift
+
+```{r missing-ind}
+pond_species_not_in_diet <-
+  sp_in_pond[which(!sp_in_pond %in% diet_shift$species_name)]
+
+nb_ind_not_in_diet <-
+  length(which(ind_size$species %in% pond_species_not_in_diet))
+
+missing_ind_size <-
+  ind_size %>%
+  filter(species %in% pond_species_not_in_diet) %>%
+  group_by(species) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  print(., n = 22)
+
+missing_ind_size %>%
+  kable(.,
+    caption = "Number of individuals by species missing in food diet data",
+    label = "missing-ind"
+  )
+```
+
+There are `r length(pond_species_not_in_diet)` that are not in diet data,
+`r nb_ind_not_in_diet` individuals, i.e. a proportion of 
+`r nb_ind_not_in_diet/nrow(ind_size) %>% round(., 2)`. However, half of the
+missing individuals are represented by "Sander_lucioperca".
+
+# Build the metaweb
+
+```{r}
+myload(species, pred_win, diet_shift, resource_diet_shift,
+  dir = mypath("data"))
+
+species_code_name <-
+  diet_shift %>%
+  distinct(species, species_name)
+pred_win %<>%
+  left_join(species_code_name, by = "species")
+ind_size %<>%
+ rename(species_name = "species")
+diet_shift %<>%
+  select(-species)
+resource_diet_shift %<>%
+ rename(species_name = "species_code") %>%
+  select(-species)
+pred_win %<>%
+  select(-species)
+
+# Build metaweb
+
+debugonce(build_metaweb)
+debugonce(compute_links)
+
+# Add check for resource_diet_shift have the same column 
+# than in diet shift
+metaweb_analysis <- build_metaweb(
+  data = ind_size,
+  species = species_name,
+  size = fish,
+  pred_win = pred_win,
+  beta_min = beta_min,
+  beta_max = beta_max,
+  fish_diet_shift = diet_shift,
+  low_bound = size_min,
+  upper_bound = size_max,
+  fish = fish,
+  resource_diet_shift = resource_diet_shift,
+  class_method = "percentile",
+  nb_class = 9,
+  pred_win_method = "midpoint",
+  fish_resource_method = "midpoint",
+  na.rm = TRUE,
+  replace_min_by_one = FALSE)
+
+#Browse[2]>
+#debug: trophic_data <- dplyr::left_join(size_class, th_prey_size, by = c("species",
+#    "class_id")) %>% dplyr::left_join(., piscivory_index, by = c("species",
+#    "class_id")) %>% tidyr::unite(sp_class, !!species, class_id)
+#Browse[2]>
+#Erreur : Join columns must be present in data.
+#✖ Problem with `species`.
+#Run `rlang::last_error()` to see where the error occurred.
+
+mysave(metaweb_analysis, dir = mypath("data"), overwrite = TRUE)
+sanatize_metaweb
+size_class
+th_prey_size
+piscivory_index
+fish_diet_shift
+resource_diet_shift
+fish_diet_shift %>%
+  filter(species_name %in% pred_classes[j])
+pred_diet
+#TODO: compute metaweb function by function to see the problem
+# fixed problem for "_" in species name
+
+metaweb_analysis <- build_metaweb(
+  data = ind_size,
+  species = species_name,
+  size = fish,
+  pred_win = pred_win,
+  beta_min = beta_min,
+  beta_max = beta_max,
+  fish_diet_shift = diet_shift,
+  low_bound = size_min,
+  upper_bound = size_max,
+  fish = fish,
+  resource_diet_shift = resource_diet_shift,
+  class_method = "percentile",
+  nb_class = 9,
+  pred_win_method = "midpoint",
+  fish_resource_method = "midpoint",
+  na.rm = TRUE,
+  replace_min_by_one = FALSE)
+
+debugonce(sanatize_metaweb)
+data <- sanatize_metaweb(data = ind_size,
+    species = "species_name", fish_diet_shift = diet_shift, nb_class = 9)
+  # TODO: Check concordance of column names between datasets
+  ## eg. species, (life_stage), low_bound, upper_bound, fish
+
+
+  # Build the size classes
+size_class <- compute_classes(size = data,
+  group_var = species_name, var = fish,
+  class_method = "percentile", na.rm = TRUE,
+  replace_min_by_one = FALSE)
+
+
+  ## Compute the th_prey size min & max + mid-point
+debugonce(compute_prey_size)
+
+
+sp_not_in_pred_win <- unique(size_class$species_name)[!unique(size_class$species_name) %in% pred_win$species_name]
+compl_pred_win <- list(
+  species_name = sp_not_in_pred_win,
+  beta_min = 0.03,
+  beta_max = 0.45
+) %>%
+as.data.frame
+test <- vector("list", ncol(pred_win) -3)
+names(test) <- colnames(pred_win)[!colnames(pred_win) %in% names(compl_pred_win)]
+test <- purrr::map(test, function(x) x <- rep(NA, nrow(compl_pred_win)))
+as.data.frame(test)
+
+
+th_prey_size <- compute_prey_size(
+  class_size = size_class,
+#  pred_win = rbind(pred_win, cbind(test, compl_pred_win)),
+  pred_win = pred_win,
+  species = species_name,
+  beta_min = beta_min,
+  beta_max = beta_max,
+  pred_win_method = "midpoint"
+)
+
+  ## Get piscivory index for each size class  
+  piscivory_index <- compute_piscivory(size_class, diet_shift,
+    species = species_name, low_bound = size_min, upper_bound = size_max,
+    fish = fish)
+
+  ## Fill the matrix
+debugonce(compute_links)
+filter(data, !species_name %in% unique(diet_shift$species_name))
+  int_matrices <- compute_links(size_class,
+    th_prey_size,
+    piscivory_index,
+    diet_shift,
+    resource_diet_shift,
+    species_name,
+    fish,
+    size_min,
+    size_max,
+    fish_resource_method = "midpoint",
+    pred_win_method = "midpoint" 
+  )
+  fish_fish_int <- int_matrices$fish_fish_int
+  fish_resource_int <- int_matrices$fish_resource_int
+
+  # Resource-Resource matrix
+  resource_list <- int_matrices$resource_list
+  resource_resource_int <- t(resource_diet_shift[, resource_list])
+  # Resource-Fish matrix
+  resource_fish_int <- matrix(0, ncol = ncol(resource_resource_int),
+    nrow = nrow(fish_fish_int)) #0 because no resources are eating fishes
+  colnames(resource_resource_int) <- colnames(resource_fish_int) <- resource_list
+
+  # Merge the matrix
+  metaweb <- rbind(
+    cbind(fish_fish_int, resource_fish_int),
+    cbind(fish_resource_int, resource_resource_int)
+    )
+
+  list(
+  metaweb = metaweb,
+  species = int_matrices$species_list,
+  resource = resource_list,
+  nb_class = nb_class,
+  size_class = size_class,
+  piscivory_index = piscivory_index,
+  th_prey_size = th_prey_size
+  )
+```
+
+
+
