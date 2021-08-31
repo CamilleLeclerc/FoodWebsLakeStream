@@ -10,7 +10,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  echo = FALSE
 )
 ```
 
@@ -18,11 +19,13 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(magrittr)
 library(kableExtra)
+library(igraph)
 install.packages("~/Documents/post-these/packages/sizeTrophicInteractions_0.0.0.9000.tar.gz")
 library(sizeTrophicInteractions)
 
 mypath <- rprojroot::find_package_root_file
 source(mypath("R", "misc.R"))
+source_dir(mypath("R"))
 ```
 
 
@@ -53,7 +56,7 @@ species[species$latin_name_fixed == "Gymnocephalus_cernuus", ]$latin_name_fixed 
 ```
 
 
-```{r}
+```{r, eval = FALSE}
 species %>%
   filter(latin_name_fixed %in% sp_in_pond)
 sp_in_pond[which(!sp_in_pond %in% species$latin_name_fixed)]
@@ -74,8 +77,7 @@ missing_ind_size <-
   filter(species %in% pond_species_not_in_diet) %>%
   group_by(species) %>%
   summarise(n = n()) %>%
-  arrange(desc(n)) %>%
-  print(., n = 22)
+  arrange(desc(n)) 
 
 missing_ind_size %>%
   kable(.,
@@ -91,7 +93,7 @@ missing individuals are represented by "Sander_lucioperca".
 
 # Build the metaweb
 
-```{r}
+```{r prep data}
 myload(species, pred_win, diet_shift, resource_diet_shift,
   dir = mypath("data"))
 
@@ -103,28 +105,28 @@ pred_win %<>%
 ind_size %<>%
  rename(species_name = "species")
 diet_shift %<>%
-  select(-species)
+  select(-species) %>%
+  mutate(
+    size_max = str_replace(size_max, "max", "Inf"),
+    size_max = as.numeric(size_max)
+  )
 resource_diet_shift %<>%
  rename(species_name = "species_code") %>%
   select(-species)
 pred_win %<>%
   select(-species)
+```
 
-# Build metaweb
 
-debugonce(build_metaweb)
-debugonce(compute_links)
-
-# Add check for resource_diet_shift have the same column 
-# than in diet shift
-metaweb_analysis <- build_metaweb(
+```{r build metaweb, cache=TRUE}
+metaweb_lake <- build_metaweb(
   data = ind_size,
   species = species_name,
   size = fish,
   pred_win = pred_win,
   beta_min = beta_min,
   beta_max = beta_max,
-  fish_diet_shift = diet_shift,
+  fish_diet_shift = (diet_shift),
   low_bound = size_min,
   upper_bound = size_max,
   fish = fish,
@@ -136,135 +138,255 @@ metaweb_analysis <- build_metaweb(
   na.rm = TRUE,
   replace_min_by_one = FALSE)
 
-#Browse[2]>
-#debug: trophic_data <- dplyr::left_join(size_class, th_prey_size, by = c("species",
-#    "class_id")) %>% dplyr::left_join(., piscivory_index, by = c("species",
-#    "class_id")) %>% tidyr::unite(sp_class, !!species, class_id)
-#Browse[2]>
-#Erreur : Join columns must be present in data.
-#✖ Problem with `species`.
-#Run `rlang::last_error()` to see where the error occurred.
-
-mysave(metaweb_analysis, dir = mypath("data"), overwrite = TRUE)
-sanatize_metaweb
-size_class
-th_prey_size
-piscivory_index
-fish_diet_shift
-resource_diet_shift
-fish_diet_shift %>%
-  filter(species_name %in% pred_classes[j])
-pred_diet
-#TODO: compute metaweb function by function to see the problem
-# fixed problem for "_" in species name
-
-metaweb_analysis <- build_metaweb(
-  data = ind_size,
-  species = species_name,
-  size = fish,
-  pred_win = pred_win,
-  beta_min = beta_min,
-  beta_max = beta_max,
-  fish_diet_shift = diet_shift,
-  low_bound = size_min,
-  upper_bound = size_max,
-  fish = fish,
-  resource_diet_shift = resource_diet_shift,
-  class_method = "percentile",
-  nb_class = 9,
-  pred_win_method = "midpoint",
-  fish_resource_method = "midpoint",
-  na.rm = TRUE,
-  replace_min_by_one = FALSE)
-
-debugonce(sanatize_metaweb)
-data <- sanatize_metaweb(data = ind_size,
-    species = "species_name", fish_diet_shift = diet_shift, nb_class = 9)
-  # TODO: Check concordance of column names between datasets
-  ## eg. species, (life_stage), low_bound, upper_bound, fish
+mysave(metaweb_lake, dir = mypath("data"), overwrite = TRUE)
+```
 
 
-  # Build the size classes
-size_class <- compute_classes(size = data,
-  group_var = species_name, var = fish,
-  class_method = "percentile", na.rm = TRUE,
-  replace_min_by_one = FALSE)
-
-
-  ## Compute the th_prey size min & max + mid-point
-debugonce(compute_prey_size)
-
-
-sp_not_in_pred_win <- unique(size_class$species_name)[!unique(size_class$species_name) %in% pred_win$species_name]
-compl_pred_win <- list(
-  species_name = sp_not_in_pred_win,
-  beta_min = 0.03,
-  beta_max = 0.45
-) %>%
-as.data.frame
-test <- vector("list", ncol(pred_win) -3)
-names(test) <- colnames(pred_win)[!colnames(pred_win) %in% names(compl_pred_win)]
-test <- purrr::map(test, function(x) x <- rep(NA, nrow(compl_pred_win)))
-as.data.frame(test)
-
-
-th_prey_size <- compute_prey_size(
-  class_size = size_class,
-#  pred_win = rbind(pred_win, cbind(test, compl_pred_win)),
-  pred_win = pred_win,
-  species = species_name,
-  beta_min = beta_min,
-  beta_max = beta_max,
-  pred_win_method = "midpoint"
+```{r, fig.dim=c(7,7)}
+# species_list
+sp_color <- set_color_species(
+  node_list = colnames(metaweb_lake$metaweb),
+  species_list = metaweb_lake$species,
+  resource_list = metaweb_lake$resource
 )
 
-  ## Get piscivory index for each size class  
-  piscivory_index <- compute_piscivory(size_class, diet_shift,
-    species = species_name, low_bound = size_min, upper_bound = size_max,
-    fish = fish)
+names(sp_color)[names(sp_color) %in% metaweb_lake$resource] <-
+  c("detritivore", "biofilm", "phytobenthos", "macrophage", "phytoplankton", "zooplankton", "zoobenthos")
+node_sp <- str_remove(colnames(metaweb_lake$metaweb), "_\\d+")
 
-  ## Fill the matrix
-debugonce(compute_links)
-filter(data, !species_name %in% unique(diet_shift$species_name))
-  int_matrices <- compute_links(size_class,
-    th_prey_size,
-    piscivory_index,
-    diet_shift,
-    resource_diet_shift,
-    species_name,
-    fish,
-    size_min,
-    size_max,
-    fish_resource_method = "midpoint",
-    pred_win_method = "midpoint" 
-  )
-  fish_fish_int <- int_matrices$fish_fish_int
-  fish_resource_int <- int_matrices$fish_resource_int
+TL <- NetIndices::TrophInd(metaweb_lake$metaweb)$TL
 
-  # Resource-Resource matrix
-  resource_list <- int_matrices$resource_list
-  resource_resource_int <- t(resource_diet_shift[, resource_list])
-  # Resource-Fish matrix
-  resource_fish_int <- matrix(0, ncol = ncol(resource_resource_int),
-    nrow = nrow(fish_fish_int)) #0 because no resources are eating fishes
-  colnames(resource_resource_int) <- colnames(resource_fish_int) <- resource_list
+#dev.new(width = 5, height = 7, units = "in")
+## i3: mod + shift + space 
+#
+#png(
+#  filename = mypath("manuscript/bef_stability/figs",
+#    "metaweb2.png"), 
+#  units = "in",
+#  width = 5,
+#  height = 7,
+#  pointsize = 12*96/72,
+#  res = 200 
+#)
+org_par <- par(
+  mar = c(4, 0, 1, 0) + 0,
+  oma = c(0, 0, 0, 0),
+  xpd = NA
+)
+PlotWeb(
+  TL = TL,
+  webTL = metaweb_lake$metaweb,
+  colnode = sp_color[node_sp],
+  abund = 6,
+  collink = "grey90",
+  scale_abun = .01
+)
+title("Lake Metaweb")
 
-  # Merge the matrix
-  metaweb <- rbind(
-    cbind(fish_fish_int, resource_fish_int),
-    cbind(fish_resource_int, resource_resource_int)
-    )
+legend(
+#  x      = 0.031,
+#  y      = 4,
+  x      = "bottom",
+  inset = -.07,
+  legend = names(sp_color),
+  pch    = 21,
+  col    = "#777777",
+  pt.bg  = sp_color,
+  pt.cex = 0.7,
+  cex    = .8,
+  bty    = "n",
+  x.intersp = 1.5,
+  text.width = .1,
+  ncol   = 6
 
-  list(
-  metaweb = metaweb,
-  species = int_matrices$species_list,
-  resource = resource_list,
-  nb_class = nb_class,
-  size_class = size_class,
-  piscivory_index = piscivory_index,
-  th_prey_size = th_prey_size
-  )
+)
+
+#dev.off()
+par(org_par)
+```
+
+```{r load both metaweb}
+myload(metaweb_analysis, metaweb_lake, dir = mypath("data"))
+metaweb_stream <- metaweb_analysis
+```
+```{r, fig.dim=c(7,7)}
+# species_list
+sp_color <- set_color_species(
+  node_list = colnames(metaweb_stream$metaweb),
+  species_list = metaweb_stream$species,
+  resource_list = metaweb_stream$resource
+)
+
+names(sp_color)[names(sp_color) %in% metaweb_stream$resource] <-
+  c("detritivore", "biofilm", "phytobenthos", "macrophage", "phytoplankton", "zooplankton", "zoobenthos")
+node_sp <- str_remove(colnames(metaweb_stream$metaweb), "_\\d+")
+
+TL <- NetIndices::TrophInd(metaweb_stream$metaweb)$TL
+
+PlotWeb(
+  TL = TL,
+  webTL = metaweb_stream$metaweb,
+  colnode = sp_color[node_sp],
+  abund = 6,
+  collink = "grey90",
+  scale_abun = .01
+)
+title("Stream Metaweb")
+
+legend(
+#  x      = 0.031,
+#  y      = 4,
+  x      = "bottom",
+  inset = -.07,
+  legend = names(sp_color),
+  pch    = 21,
+  col    = "#777777",
+  pt.bg  = sp_color,
+  pt.cex = 0.7,
+  cex    = 1,
+  bty    = "n",
+  x.intersp = 1.5,
+  text.width = .1,
+  ncol   = 6
+
+)
+
+#dev.off()
+par(org_par)
 ```
 
 
 
+## Metaweb comparison
+
+```{r compute index, cache=TRUE}
+ind_lake <- metaweb_lake$metaweb %>%
+  NetIndices::GenInd() %>%
+  c(., Tlvl = mean(NetIndices::TrophInd(metaweb_lake$metaweb)$TL))
+ind_stream <- metaweb_stream$metaweb %>%
+  NetIndices::GenInd() %>%
+  c(., Tlvl = mean(NetIndices::TrophInd(metaweb_stream$metaweb)$TL))
+```
+
+```{r}
+ind_net_to_keep <- c("N", "Ltot", "LD", "C", "Tlvl")
+
+metaweb_metric <- map2_dfr(
+  list(ind_lake, ind_stream),
+  list("lake", "stream"),
+  function(l, type, cols_to_keep) {
+    l %>%
+      enframe() %>%
+      unnest(value) %>%
+      filter(name %in% cols_to_keep) %>%
+      mutate(type = type)
+  }, cols_to_keep = ind_net_to_keep
+)
+
+metaweb_metric %>%
+  pivot_wider(names_from = name, values_from = value) %>%
+  kable(.,
+    label = "tab:metaweb-comp",
+    caption = "Comparision of the two metawebs."
+  )
+```
+
+```{r prop-pisc}
+get_prop_pisc <- function(metaweb = NULL) {
+
+  mask_fish_metaweb <-
+    str_remove(colnames(metaweb$metaweb), "_\\d+") %in%
+    metaweb$species
+
+  fish_fish_metaweb <- metaweb$metaweb[mask_fish_metaweb, mask_fish_metaweb]
+  # Nb of piscivores:
+  tibble(
+    nb_pisc = length(which(colSums(fish_fish_metaweb) > 0)),
+    prop_pisc = length(which(colSums(fish_fish_metaweb) > 0)) /
+      length(colSums(fish_fish_metaweb))
+
+  )
+}
+prop_pisc <- map_dfr(list(metaweb_lake, metaweb_stream), get_prop_pisc) %>%
+  mutate(type = c("Lake", "Stream"))
+prop_pisc %>%
+  kable(.,
+    label = "tab:pisc",
+    caption = "Proportion of piscivores nodes in metawebs"
+  )
+```
+
+
+# Local network
+
+```{r get network, cache = TRUE}
+network_lake <- build_local_network(
+  data = filter(ind_size, species_name %in% metaweb_lake$size_class$species_name),
+  species = species_name,
+  var = fish,
+  group_var = id_campagne,
+  metaweb = metaweb_lake,
+  classes = NULL,
+  out_format = "igraph"
+)
+# check
+network_lake %>%
+  unnest(data) %>%
+  filter(is.na(class_id))
+
+mysave(network_lake, dir = mypath("data"), overwrite = TRUE)
+
+myload(length_analysis, dir = mypath("data"))
+network_stream <- build_local_network(
+  data = filter(length_analysis,
+    species %in% metaweb_stream$size_class$species),
+  species = species,
+  var = length,
+  group_var = opcod,
+  metaweb = metaweb_stream,
+  classes = NULL,
+  out_format = "igraph"
+)
+
+# check
+network_stream %>%
+  unnest(data) %>%
+  filter(is.na(class_id))
+mysave(network_stream, dir = mypath("data"), overwrite = TRUE)
+```
+
+```{r, eval=FALSE, fig.dim = c(7, 7)}
+net_ex <- network_lake$network[[1]] %>%
+graph_from_data_frame() %>%
+  as_adjacency_matrix(., sparse = FALSE)
+
+node_sp <- str_remove(colnames(net_ex), "_\\d+")
+
+TL <- NetIndices::TrophInd(net_ex)$TL
+
+PlotWeb(
+  TL = TL,
+  webTL = net_ex,
+  colnode = sp_color[node_sp],
+  abund = 6,
+  collink = "grey90",
+  scale_abun = .01
+)
+
+legend(
+#  x      = 0.031,
+#  y      = 4,
+  x      = "bottom",
+  inset = -.05,
+  legend = names(sp_color)[names(sp_color) %in% node_sp],
+  pch    = 21,
+  col    = "#777777",
+  pt.bg  = sp_color[names(sp_color) %in% node_sp],
+  pt.cex = 0.7,
+  cex    = .5,
+  bty    = "n",
+  x.intersp = 1,
+  text.width = .1,
+  ncol   = 6
+)
+```
