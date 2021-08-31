@@ -20,6 +20,8 @@ library(tidyverse)
 library(magrittr)
 library(knitr)
 source(mypath("R/misc.R"))
+library(cowplot)
+theme_set(theme_cowplot())
 ```
 
 
@@ -29,9 +31,10 @@ pond_species_list <- read_csv(mypath("data-raw/plando_fish_list.csv"))
 pond_sampling <- read_csv(mypath("data-raw/plando_sampling_year.csv"))
 pond_spatial_coord <- read_csv(mypath("data-raw/plando_spatial_ coordinates.csv"))
 ```
+
 ```{r metaweb-data}
 myload(metaweb_analysis, diet_shift, species,
-  dir = "~/Documents/post-these/mnhn/fishcom/data")
+  dir = mypath("data"))
 sp <- species %>% 
   filter(code %in% metaweb_analysis$species)
 rm(species)
@@ -104,11 +107,9 @@ pond_species_check %>%
 ## Spatial coordinates
 
 ```{r}
-# get station from hard drive
-#myload(op, station, dir = "~/Documents/post-these/mnhn/fishcom/data-raw")
 
 library(sf)
-myload(region_polygon, op_analysis, station_analysis, dir = "~/Documents/post-these/mnhn/fishcom/data")
+myload(region_polygon, op_analysis, station_analysis, dir = mypath("data"))
 # get the map
 
 pond_spatial_coord %<>% 
@@ -122,6 +123,28 @@ plot(st_geometry(station_analysis), pch = 20, col = "red", add = T)
 plot(st_geometry(pond_spatial_coord), pch = 20, col = "green", add = T)
 
 legend("bottomright", c("Stream", "Pond"), pch=20, col = c("red", "green"), title= "Communities sampled")
+```
+
+## sampling year 
+
+```{r, fig.dim=c(8, 6)}
+myload(sampling_protocol, dir = mypath("data"))
+
+
+op_analysis_to_merge <- op_analysis %>%
+  ungroup() %>%
+  distinct(opcod, year) %>%
+  rename(id_campagne = opcod, camp_annee = year) %>%
+  mutate(type = "stream")
+sampling_lake_stream <- sampling_protocol %>%
+  distinct(id_campagne, camp_annee) %>%
+  mutate(type = "lake") %>%
+  rbind(., op_analysis_to_merge)
+
+sampling_lake_stream %>%
+  ggplot(aes(x = camp_annee)) +
+  geom_histogram() +
+  facet_grid(cols = vars(type))
 ```
 
 
