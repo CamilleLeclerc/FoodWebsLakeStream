@@ -54,10 +54,10 @@ for (i in 1:length(unique(combined_df$code_lac))){
   
   for (j in 1:length(unique(sub_data$camp_annee))){
     subset_data <- sub_data %>% filter(camp_annee == unique(sub_data$camp_annee)[j])
-    #subset.data.benthic <- subset.data %>% filter(strate %in% c("< 3 m [Protocole CEN]", "3 - 5,9 m [Protocole CEN]", "6 -11,9 m [Protocole CEN]", "12 - 19,9 m [Protocole CEN]", "20 - 34,9 m [Protocole CEN]", "35 - 49,9 m  [Protocole CEN]", "50 - 74,9 m  [Protocole CEN]", "> 75 m [Protocole CEN]"))
-    #subset.data.pelagic <- subset.data %>% filter(strate %in% c("0 - 5,9 m Pelagique", "6 - 11,9 m Pelagique", "12 - 17,9 m Pelagique", "18 - 23,9 m Pelagique", "24 - 29,9 m Pelagique", "30 - 35,9 m Pelagique", "36 - 41,9 m Pelagique", "42 - 47,9 m Pelagique", "48 - 53,9 m Pelagique", "54 - 59,9 m Pelagique", "60 - 65,9 m Pelagique", "66 - 71,9 m Pelagique"))       
-    subset_data_benthic <- subset.data %>% filter(cd_engin_peche == "FB")
-    subset_data_pelagic <- subset.data %>% filter(cd_engin_peche %in% c("FP", "FPa"))    
+    #subset_data_benthic <- subset_data %>% filter(strate %in% c("< 3 m [Protocole CEN]", "3 - 5,9 m [Protocole CEN]", "6 -11,9 m [Protocole CEN]", "12 - 19,9 m [Protocole CEN]", "20 - 34,9 m [Protocole CEN]", "35 - 49,9 m  [Protocole CEN]", "50 - 74,9 m  [Protocole CEN]", "> 75 m [Protocole CEN]"))
+    #subset_data_pelagic <- subset_data %>% filter(strate %in% c("0 - 5,9 m Pelagique", "6 - 11,9 m Pelagique", "12 - 17,9 m Pelagique", "18 - 23,9 m Pelagique", "24 - 29,9 m Pelagique", "30 - 35,9 m Pelagique", "36 - 41,9 m Pelagique", "42 - 47,9 m Pelagique", "48 - 53,9 m Pelagique", "54 - 59,9 m Pelagique", "60 - 65,9 m Pelagique", "66 - 71,9 m Pelagique"))       
+    subset_data_benthic <- subset_data %>% filter(cd_engin_peche == "FB")
+    subset_data_pelagic <- subset_data %>% filter(cd_engin_peche %in% c("FP", "FPa"))    
     
     if(nrow(subset_data_benthic) !=0 ){ sub_sampling_effort_benthic <- data.frame(as.list(c(unique(subset_data_benthic$code_lac), unique(subset_data_benthic$camp_annee), length(unique(subset_data_benthic$id_campagne)),
                                                                                             length(unique(subset_data_benthic$id_prelev_poisson)), length(unique(subset_data_benthic$id_point_prelev))
