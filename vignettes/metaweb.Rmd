@@ -41,6 +41,7 @@ sp_in_pond <- unique(ind_size$species)
 
 
 ### Fix name differences
+
 ```{r}
 species %<>%
   mutate(
@@ -208,6 +209,7 @@ par(org_par)
 ```{r load both metaweb}
 myload(metaweb_analysis, metaweb_lake, dir = mypath("data"))
 metaweb_stream <- metaweb_analysis
+mysave(metaweb_stream, dir = mypath("data"), overwrite = TRUE)
 ```
 ```{r, fig.dim=c(7,7)}
 # species_list
@@ -304,7 +306,6 @@ get_prop_pisc <- function(metaweb = NULL) {
     nb_pisc = length(which(colSums(fish_fish_metaweb) > 0)),
     prop_pisc = length(which(colSums(fish_fish_metaweb) > 0)) /
       length(colSums(fish_fish_metaweb))
-
   )
 }
 prop_pisc <- map_dfr(list(metaweb_lake, metaweb_stream), get_prop_pisc) %>%
@@ -317,76 +318,3 @@ prop_pisc %>%
 ```
 
 
-# Local network
-
-```{r get network, cache = TRUE}
-network_lake <- build_local_network(
-  data = filter(ind_size, species_name %in% metaweb_lake$size_class$species_name),
-  species = species_name,
-  var = fish,
-  group_var = id_campagne,
-  metaweb = metaweb_lake,
-  classes = NULL,
-  out_format = "igraph"
-)
-# check
-network_lake %>%
-  unnest(data) %>%
-  filter(is.na(class_id))
-
-mysave(network_lake, dir = mypath("data"), overwrite = TRUE)
-
-myload(length_analysis, dir = mypath("data"))
-network_stream <- build_local_network(
-  data = filter(length_analysis,
-    species %in% metaweb_stream$size_class$species),
-  species = species,
-  var = length,
-  group_var = opcod,
-  metaweb = metaweb_stream,
-  classes = NULL,
-  out_format = "igraph"
-)
-
-# check
-network_stream %>%
-  unnest(data) %>%
-  filter(is.na(class_id))
-mysave(network_stream, dir = mypath("data"), overwrite = TRUE)
-```
-
-```{r, eval=FALSE, fig.dim = c(7, 7)}
-net_ex <- network_lake$network[[1]] %>%
-graph_from_data_frame() %>%
-  as_adjacency_matrix(., sparse = FALSE)
-
-node_sp <- str_remove(colnames(net_ex), "_\\d+")
-
-TL <- NetIndices::TrophInd(net_ex)$TL
-
-PlotWeb(
-  TL = TL,
-  webTL = net_ex,
-  colnode = sp_color[node_sp],
-  abund = 6,
-  collink = "grey90",
-  scale_abun = .01
-)
-
-legend(
-#  x      = 0.031,
-#  y      = 4,
-  x      = "bottom",
-  inset = -.05,
-  legend = names(sp_color)[names(sp_color) %in% node_sp],
-  pch    = 21,
-  col    = "#777777",
-  pt.bg  = sp_color[names(sp_color) %in% node_sp],
-  pt.cex = 0.7,
-  cex    = .5,
-  bty    = "n",
-  x.intersp = 1,
-  text.width = .1,
-  ncol   = 6
-)
-```

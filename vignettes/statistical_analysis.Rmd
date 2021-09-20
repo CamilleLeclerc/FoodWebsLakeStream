@@ -1,0 +1,102 @@
+---
+title: Analyse data 
+title: 
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{statistical_analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE
+)
+```
+
+```{r setup}
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(igraph)
+library(sizeTrophicInteractions)
+library(furrr)
+
+mypath <- rprojroot::find_package_root_file
+source(mypath("R", "misc.R"))
+source_dir(mypath("R"))
+```
+
+
+```{r load}
+myload(network_lake_metrics, network_stream_metrics,
+  community_lake_metrics, community_stream_metrics,
+  op_analysis,
+  dir = mypath("data"))
+
+# Environment
+myload(
+  yearly_avg_water_chemical_stream,
+  yearly_avg_water_flow_stream,
+  yearly_avg_water_temperature_stream,
+  dir = mypath("data", "environment"))
+```
+
+```{r}
+chem_stream <-
+yearly_avg_water_chemical_stream %>%
+  pivot_wider(names_from = "category", values_from = "press")
+
+corrplot::corrplot(
+  chem_stream[, !colnames(chem_stream) %in% c("id", "year")] %>%
+  cor(., use = "complete.obs", method = "spearman"), type = "upper"
+)
+```
+
+```{r}
+temp_stream <- yearly_avg_water_temperature_stream %>%
+  select(id, year, value_corrected) %>%
+  rename(temperature = value_corrected)
+flow_stream <-yearly_avg_water_flow_stream %>%
+  select(id, year, value_corrected) %>%
+  rename(flow = value_corrected)
+```
+
+# Get analysis data
+
+```{r merge temperature and flow with network and community}
+env_stream <-
+temp_stream %>%
+  left_join(flow_stream, by = c("id", "year")) %>%
+  left_join(select(chem_stream, id, year, DBO, nitrates, phosphore),
+    by = c("id", "year")) %>%
+  rename(station = id)
+
+com_net_stream <-
+  network_stream_metrics %>%
+  select(opcod, connectance, nbnode, max_troph_lvl, w_trph_lvl_avg) %>%
+  left_join(
+    community_stream_metrics %>%
+      select(opcod, biomass, richness, nind, rich_std, bm_std, nind_std),
+    by = "opcod"
+    ) %>%
+  ungroup() %>%
+  # add date and station 
+  left_join(select(ungroup(op_analysis), opcod, station, year), by = c("opcod"))
+
+stream_analysis <-
+  env_stream %>%
+  left_join(com_net_stream, by = c("station", "year"))
+```
+
+```{r}
+model_stream_ct <- lm(connectance ~ temperature + DBO, data = stream_analysis) 
+model_stream_tlvl <- lm(w_trph_lvl_avg ~ temperature + DBO, data = stream_analysis) 
+model_stream_tmax <- lm(max_troph_lvl ~ temperature + DBO, data = stream_analysis) 
+
+car::vif(model_stream_ct)
+```
+
+

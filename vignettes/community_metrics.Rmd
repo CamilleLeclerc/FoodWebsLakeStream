@@ -1,0 +1,198 @@
+---
+title: Building local network and metrics
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE
+)
+```
+
+```{r setup}
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(igraph)
+library(sizeTrophicInteractions)
+
+mypath <- rprojroot::find_package_root_file
+source(mypath("R", "misc.R"))
+source_dir(mypath("R"))
+```
+```{r}
+#' Compute fish body mass 
+#' @param length in mm numeric 
+#' @param gram logical TRUE (default), miligram if not
+calc_fish_body_mass <- function (length = NULL, unit = "gram") {
+
+  weight  <- 0.01 * (length ^ 3.03)
+
+  if (unit == "gram") {
+    weight <- weight * 10 ^ -3 #in grams
+  }
+
+  return(weight)
+
+}
+```
+
+
+# Streams
+
+```{r}
+myload(length_analysis, op_analysis, dir = mypath("data"))
+
+wl <- read_delim(mypath("data-raw", "weight_length_coef.csv"),
+  delim = ";",
+  local = locale(decimal_mark = "."),
+  col_types = "cddc"
+)
+wl %<>%
+  dplyr::select(species_code, a, b) %>%
+  rename(species = species_code)
+```
+
+```{r compute biomass}
+weight_fish_stream <- length_analysis %>%
+  mutate(weight = calc_fish_body_mass(length)) %>%
+  dplyr::select(opcod, species, length, weight)
+# length is given in milimeters
+
+# Lake
+myload(ind_size, dir = mypath("data"))
+weight_fish_lake <- ind_size %>%
+  mutate(weight = calc_fish_body_mass(fish))
+
+mysave(weight_fish_stream, weight_fish_lake,
+  dir = mypath("data"), overwrite = TRUE)
+```
+
+```{r get biomass by species}
+op_analysis %<>%
+  ungroup() %>%
+  select(opcod, station, date, surface)
+
+com_stream <- length_analysis %>%
+  group_by(opcod, species) %>%
+  summarise(nind = n()) %>%
+  left_join(., select(op_analysis, opcod, surface), by = "opcod")
+
+# Get biomass by species and by opcod and their average size
+biomass_stream <-
+  weight_fish_stream %>%
+  group_by(opcod, species) %>%
+  summarise(biomass = sum(weight, na.rm =TRUE), length = mean(length, na.rm = TRUE))
+# NA rm bc some fish have no valid measurement
+
+## The biomass and length are given by species
+com_stream %<>%
+  ungroup() %>%
+  left_join(., biomass_stream, by = c("opcod", "species")) %>%
+  mutate(
+    bm_std = biomass / surface,
+    nind_std = nind / surface
+  )  %>%
+  select(-surface)
+
+#Rm species that had no valid measurements in an opcod
+com_stream %<>% filter( !is.nan(length))
+
+# Save community_analysis
+community_stream <- com_stream
+
+# Lake
+myload(sampling_protocol, dir = mypath("data"))
+community_lake <- weight_fish_lake %>%
+  group_by(id_campagne, species) %>%
+  summarise(
+    biomass = sum(weight, na.rm =TRUE),
+    length = mean(fish, na.rm = TRUE),
+    nind = n()
+  )
+
+mysave(community_stream, community_lake,
+  dir = mypath("data"), overwrite = TRUE)
+```
+
+```{r richness}
+com <- community_stream %>%
+  group_by(opcod) %>%
+  summarise(
+    richness = n(),
+    nind = sum(nind),
+    biomass = sum(biomass),
+    #bm_std = sum(biomass)/surface
+  ) %>%
+  left_join(select(op_analysis, opcod, surface), by = "opcod") %>%
+  mutate(
+    rich_std = richness / surface,
+    nind_std = nind / surface,
+    bm_std = biomass / surface
+  )
+
+# Lake
+com_lake <- community_lake %>%
+  group_by(id_campagne) %>%
+  summarise(
+    richness = n(),
+    nind = sum(nind),
+    biomass = sum(biomass),
+    #bm_std = sum(biomass)/surface
+  )
+```
+
+```{r}
+species_vector <- community_stream %>%
+  select(opcod, species, biomass) %>%
+  group_by(opcod, species) %>%
+  summarise(biomass = sum(biomass)) %>%
+  group_by(opcod) %>%
+  nest() %>%
+  mutate(
+    sp_vector = furrr::future_map(data,
+      function(.data) {
+        .data %<>% spread(species, biomass)
+        stopifnot(nrow(.data) == 1)
+        return(unlist(.data))
+      }
+      ),
+    rel_bm = furrr::future_map(sp_vector,
+      function(.data) {
+        return(.data / sum(.data))
+      })
+  )
+
+community_stream_metrics <- left_join(com,
+  species_vector, by = "opcod")
+
+# Lake
+species_vector_lake <-
+  community_lake %>%
+  select(id_campagne, species, biomass) %>%
+  group_by(id_campagne) %>%
+  nest() %>%
+  mutate(
+    sp_vector = furrr::future_map(data,
+      function(.data) {
+        .data %<>%
+          spread(species, biomass)
+        stopifnot(nrow(.data) == 1)
+        return(unlist(.data))
+      }
+      ),
+    rel_bm = furrr::future_map(sp_vector,
+      function(.data) {
+        return(.data / sum(.data))
+      })
+  )
+
+community_lake_metrics <- community_lake %>%
+  left_join(species_vector_lake, by = "id_campagne")
+
+mysave(community_stream_metrics, community_lake_metrics,
+  dir = mypath("data"), overwrite = TRUE)
+```
+
+
