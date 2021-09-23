@@ -10,18 +10,27 @@ source_url("https://raw.githubusercontent.com/alaindanet/SizeTrophicInteractions
 ##--------------
 ## LOAD DATASETS
 ##--------------
-db.fish <- as.data.frame(read_csv("data/fish_data.csv")) #fish_data.csv is too large to be on github ; it is listed in gitignore
+db.fish <- read.csv("data/fish_data.csv", sep = ";") #fish_data.csv is too large to be on github ; it is listed in gitignore
 
 
 ##--------------------
 ## DATASET EXPLORATION
 ##--------------------
 head(db.fish)
-length(unique(db.fish$code_lac))
-length(unique(db.fish$nom_latin_taxon))
-sort(unique(db.fish$nom_latin_taxon))
+
+  ##Focused period for the project is 2005 - 2018
+  sort(unique(db.fish$camp_annee))
+  db.fish <- db.fish %>% filter(camp_annee < 2019)
+  nrow(db.fish)
+  sort(unique(db.fish$camp_annee))
+
+
 
   ##Rename fish name
+  length(unique(db.fish$code_lac))
+  length(unique(db.fish$nom_latin_taxon))
+  sort(unique(db.fish$nom_latin_taxon))
+
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Aspius aspius"] <- "Leuciscus aspius"
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Blennius fluviatilis"] <- "Salaria fluviatilis"
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Carassius auratus auratus"] <- "Carassius auratus"
@@ -31,7 +40,8 @@ sort(unique(db.fish$nom_latin_taxon))
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Cyprinidaes"] <- "Cyprinidae"
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Gasterosteus aculeatus aculeatus"] <- "Gasterosteus aculeatus"
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Gymnocephalus cernuus"] <- "Gymnocephalus cernua"
-  db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Hybride brème-gardon"] <- "Cyprinidae"
+  db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Hybride breme-gardon"] <- "Cyprinidae"
+  db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Hybrides de cyprinides"] <- "Cyprinidae"
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Leuciscus cephalus"] <- "Squalius cephalus"
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Leuciscus souffia"] <- "Telestes souffia"
   db.fish$nom_latin_taxon[db.fish$nom_latin_taxon == "Liza aurata"] <- "Chelon auratus"
