@@ -1,1 +1,13 @@
-inst/doc
+# RStudio files
+.Rproj.user
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# Large files
+data/fish_data.csv
+data/physico_chemistry_data.csv
