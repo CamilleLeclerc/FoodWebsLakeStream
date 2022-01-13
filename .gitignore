@@ -9,5 +9,5 @@
 .RData
 
 # Large files
-data/fish_data.csv
-data/physico_chemistry_data.csv
+data-raw/fish_data.csv
+data-raw/physico_chemistry_data.csv
