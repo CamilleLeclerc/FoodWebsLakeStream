@@ -10,7 +10,7 @@ source_url("https://raw.githubusercontent.com/alaindanet/SizeTrophicInteractions
 ##--------------
 ## LOAD DATASETS
 ##--------------
-db.fish <- read.csv("data/fish_data.csv", sep = ";") #fish_data.csv is too large to be on github ; it is listed in gitignore
+db.fish <- read.csv("data-raw/fish_data.csv", sep = ";") #fish_data.csv is too large to be on github ; it is listed in gitignore
 
 
 ##--------------------
