@@ -11,3 +11,9 @@
 # Large files
 data-raw/fish_data.csv
 data-raw/physico_chemistry_data.csv
+R/metaweb_build.R
+R/plot_code_webs.R
+R/local_network_build.R
+data-raw/physico_chemistry_data.csv
+vignettes/metaweb_cache
+vignettes/metaweb_files
