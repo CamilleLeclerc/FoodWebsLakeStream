@@ -6,6 +6,12 @@ library(magrittr)
 mypath <- rprojroot::find_package_root_file
 source(mypath("R", "misc.R"))
 
+#get all text files of lake individual size
+#txt_files_ls = list.files(path = "./outputs/lake_individual_size", pattern="*\\.txt$", recursive = TRUE, full.names = TRUE) 
+#txt_files_df <- lapply(txt_files_ls, function(x) {read.table(file = x, header = T, sep ="")})
+#combined_df <- do.call("rbind", lapply(txt_files_df, as.data.frame)) 
+#write.table(combined_df, "data-raw/lake_individual_size.txt", row.names = FALSE)
+#rm(txt_files_ls, txt_files_df, combined_df)
 
 # Import file
 lake_size <- read_delim(
@@ -18,23 +24,21 @@ summary(lake_size)
 # Separate data to avoid too much redundancy in table
 sampling_protocol <- lake_size %>%
   select(code_lac, camp_annee, id_campagne, date_pose:strate)
-usethis::use_data(sampling_protocol)
+usethis::use_data(sampling_protocol, overwrite = TRUE)
 
 station <- lake_size %>%
   select(code_lac, coord_x, coord_y) %>%
   distinct()
-usethis::use_data(station)
+usethis::use_data(station, overwrite = TRUE)
 
 # Check unique sampling:
-
-sampling_year %>%
-  group_by(cd.lac, camp.annee)
 lake_size %>%
   distinct(code_lac, camp_annee, .keep_all = TRUE) %>%
   group_by(code_lac, camp_annee) %>%
   summarise(n = n())
 #pb: more campaign than combination of lake/year
 unique(lake_size$id_campagne) %>% length
+lake_size %>% select(code_lac, camp_annee) %>% unique(.) %>% nrow
 # Camille said:
 #id_campagne est bien un identifiant unique associé à chaque campagne de pêche.
 #Effectivement, pour certains lacs alpins (ANN74 et LEM74) il y a deux campagnes
@@ -77,4 +81,4 @@ ind_size %<>%
 # Remove spaces in species to avoid mismatches error
 ind_size %<>%
   mutate(species = str_replace_all(species, " ", "_"))
-usethis::use_data(ind_size)
+usethis::use_data(ind_size, overwrite = TRUE)
