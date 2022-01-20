@@ -17,3 +17,4 @@ R/local_network_build.R
 data-raw/physico_chemistry_data.csv
 vignettes/metaweb_cache
 vignettes/metaweb_files
+data-raw/lake_temperature
