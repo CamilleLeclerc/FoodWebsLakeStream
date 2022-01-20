@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
 library(magrittr)
 library(kableExtra)
@@ -28,47 +28,32 @@ source(mypath("R", "misc.R"))
 source_dir(mypath("R"))
 ```
 
-
 ```{r load}
-myload(diet_shift, ind_size, dir = mypath("data"))
+myload(fish_diet_shift, ind_size, dir = mypath("data"))
 ```
-
-# Get species names
+  
+&nbsp;  
+  
+# Species in ponds that are not in diet shift
 
 ```{r}
+code_species_river_lake <- read.delim(paste0(mypath("outputs"), "/code_species_river_lake.txt"))
+code_species_lake <- code_species_river_lake %>% select(sp_code, sp_lake) %>% drop_na(.)  
+code_species_lake$sp_lake <- gsub(" ", "_", code_species_lake$sp_lake)
+colnames(code_species_lake)[2] <- "species"
+ind_size <- left_join(ind_size, code_species_lake, by = "species")
+ind_size <- ind_size %>% select(id_campagne, sp_code, fish)
+colnames(ind_size)[2] <- "species"
+
+lake_of_interest <- read.csv(paste0(mypath("outputs"), "/final_lake_list.txt"), sep="")
+ind_size %<>% filter(id_campagne %in% unique(lake_of_interest$id_campagne))
+
 sp_in_pond <- unique(ind_size$species)
 ```
 
-
-### Fix name differences
-
-```{r}
-species %<>%
-  mutate(
-    latin_name = str_replace_all(latin_name, " ", "_"),
-  )
-species$latin_name_fixed <- species$latin_name
-species[species$latin_name_fixed == "Gasterosteus_aculeatus_aculeatus", ]$latin_name_fixed <- 
-  "Gasterosteus_aculeatus"
-species[species$latin_name_fixed == "Gymnocephalus_cernuus", ]$latin_name_fixed <- 
-  "Gymnocephalus_cernua"
-#species[species$latin_name_fixed == "Salmo_trutta_fario", ]$latin_name_fixed <- 
-  #"Salmo_trutta"
-```
-
-
-```{r, eval = FALSE}
-species %>%
-  filter(latin_name_fixed %in% sp_in_pond)
-sp_in_pond[which(!sp_in_pond %in% species$latin_name_fixed)]
-```
-
-
-### Species in ponds that are not in diet shift
-
 ```{r missing-ind}
 pond_species_not_in_diet <-
-  sp_in_pond[which(!sp_in_pond %in% diet_shift$species_name)]
+  sp_in_pond[which(!sp_in_pond %in% fish_diet_shift$species)]
 
 nb_ind_not_in_diet <-
   length(which(ind_size$species %in% pond_species_not_in_diet))
@@ -89,45 +74,38 @@ missing_ind_size %>%
 
 There are `r length(pond_species_not_in_diet)` that are not in diet data,
 `r nb_ind_not_in_diet` individuals, i.e. a proportion of 
-`r nb_ind_not_in_diet/nrow(ind_size) %>% round(., 2)`. However, half of the
-missing individuals are represented by "Sander_lucioperca".
-
+`r nb_ind_not_in_diet/nrow(ind_size) %>% round(., 2)`. However, more than half of the
+missing individuals are represented by "Coregonus lavaretus".
+  
+&nbsp;  
+  
 # Build the metaweb
 
 ```{r prep data}
-myload(species, pred_win, diet_shift, resource_diet_shift,
+myload(pred_win, fish_diet_shift, resource_diet_shift,
   dir = mypath("data"))
 
-species_code_name <-
-  diet_shift %>%
-  distinct(species, species_name)
-pred_win %<>%
-  left_join(species_code_name, by = "species")
-ind_size %<>%
- rename(species_name = "species")
-diet_shift %<>%
-  select(-species) %>%
+fish_diet_shift %<>%
+  select(-species_name) %>%
   mutate(
     size_max = str_replace(size_max, "max", "Inf"),
     size_max = as.numeric(size_max)
   )
-resource_diet_shift %<>%
- rename(species_name = "species_code") %>%
-  select(-species)
-pred_win %<>%
-  select(-species)
-```
 
+resource_diet_shift %<>%
+  select(-species)  %>%
+  rename(species = "species_code")
+```
 
 ```{r build metaweb, cache=TRUE}
 metaweb_lake <- build_metaweb(
   data = ind_size,
-  species = species_name,
+  species = species,
   size = fish,
   pred_win = pred_win,
   beta_min = beta_min,
   beta_max = beta_max,
-  fish_diet_shift = (diet_shift),
+  fish_diet_shift = (fish_diet_shift),
   low_bound = size_min,
   upper_bound = size_max,
   fish = fish,
@@ -141,7 +119,6 @@ metaweb_lake <- build_metaweb(
 
 mysave(metaweb_lake, dir = mypath("data"), overwrite = TRUE)
 ```
-
 
 ```{r, fig.dim=c(7,7)}
 # species_list
@@ -206,7 +183,7 @@ legend(
 par(org_par)
 ```
 
-```{r load both metaweb}
+```{r load both metaweb, message=FALSE, warning=FALSE, include=FALSE}
 myload(metaweb_analysis, metaweb_lake, dir = mypath("data"))
 metaweb_stream <- metaweb_analysis
 mysave(metaweb_stream, dir = mypath("data"), overwrite = TRUE)
@@ -245,7 +222,7 @@ legend(
   col    = "#777777",
   pt.bg  = sp_color,
   pt.cex = 0.7,
-  cex    = 1,
+  cex    = .8,
   bty    = "n",
   x.intersp = 1.5,
   text.width = .1,
@@ -256,10 +233,10 @@ legend(
 #dev.off()
 par(org_par)
 ```
-
-
-
-## Metaweb comparison
+  
+&nbsp;  
+  
+# Metaweb comparison
 
 ```{r compute index, cache=TRUE}
 ind_lake <- metaweb_lake$metaweb %>%
@@ -316,5 +293,3 @@ prop_pisc %>%
     caption = "Proportion of piscivores nodes in metawebs"
   )
 ```
-
-
