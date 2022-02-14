@@ -20,6 +20,9 @@ library(furrr)
 
 mypath <- rprojroot::find_package_root_file
 source(mypath("R", "misc.R"))
+source(mypath("R", "local_network_build.R"))
+source(mypath("R", "metaweb_build.R"))
+source(mypath("R", "plot_code_webs.R"))
 source_dir(mypath("R"))
 ```
 
@@ -55,6 +58,7 @@ network_lake <- build_local_network(
   classes = NULL,
   out_format = "igraph"
 )
+
 # check
 network_lake %>%
   unnest(data) %>%
