@@ -39,7 +39,7 @@ pre { /* Code block - determines code spacing between lines */
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, dpi = 300, dev = "svg")
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, dev = "svg")
 knitr::opts_knit$set(root.dir = 'C:/Users/Camille/Desktop/FoodWebsRiverLake')
 ```
 
