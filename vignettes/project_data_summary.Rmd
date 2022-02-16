@@ -3,6 +3,7 @@ title: "project_data_summary"
 author: "Camille Leclerc"
 date: "14/02/2022"
 output: html_document
+bibliography: "../doc/references.bib"
 ---
 
 <style type="text/css">
@@ -39,8 +40,9 @@ pre { /* Code block - determines code spacing between lines */
 
 
 ```{r setup, include=FALSE}
+mypath <- rprojroot::find_package_root_file
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, dev = "svg")
-knitr::opts_knit$set(root.dir = 'C:/Users/Camille/Desktop/FoodWebsRiverLake')
+knitr::opts_knit$set(root.dir = mypath())
 ```
 
 
@@ -59,7 +61,6 @@ library(rstatix)
 library(sf)
 library(tidyverse)
 
-mypath <- rprojroot::find_package_root_file
 source(mypath("R", "misc.R"))
 
 
@@ -67,8 +68,8 @@ source(mypath("R", "misc.R"))
   # Lake data
   myload(yearly_avg_dbo5_lake, yearly_avg_temp_lake, dir = mypath("outputs"))    
   myload(network_lake_metrics, dir = mypath("data"))
-  plando_spatial_coordinates <- read_csv("data-raw/plando_spatial_coordinates.csv")
-  lake_analysis <- read.csv("C:/Users/Camille/Desktop/FoodWebsRiverLake/outputs/final_lake_list.txt", sep = "")
+  plando_spatial_coordinates <- read_csv(mypath("data-raw", "plando_spatial_coordinates.csv"))
+  lake_analysis <- read.csv(mypath("outputs", "final_lake_list.txt"), sep = "")
   
   
   lake_analysis$station_date <- paste(lake_analysis$code_lac, lake_analysis$camp_annee, sep = "_")
@@ -162,6 +163,110 @@ source(mypath("R", "misc.R"))
   
   rm(dbo_stream, yearly_avg_water_chemical_stream, temp_stream, yearly_avg_water_temperature_stream, data_lake, data_stream, env_lake, env_stream, metric_lake, metric_stream)
 ```
+
+&nbsp;
+
+# **0. Hypothesis**
+
+&nbsp;
+
+## **0.1 Short rational**
+
+- Temperature and enrichment are predicted to have dramatic impacts on food-webs
+
+- Stability is theoretically predicted to have an U-shape with stability [@uszko_effects_2017], higher temperature leading to higher stability in "cold" food-webs, and to lower stability in "hot" food-webs
+- Futhermore, metabolic theory predicts that higher trophic level suffer most
+  from high temperature. Metabolic costs increase exponentially with temperature
+  and higher trophic levels have generally higher body mass and then higher
+  basal metabolic cost
+
+- Enrichment (measured here by DBO), is predicted to decrease stability by
+  increasing the amplitude of population fluctuations [@rosenzweig_paradox_1971] 
+- Insterestingly, enrichment is predicted to dampens the effect of high
+  temperature by increasing resources thereby decreasing starvation risk due to
+  high temperature [@tabi_warming_2019]
+
+- Stream and lakes are really different ecosystems:
+  - Stream fishes are highly contrained by stream flow
+  - Lakes are highly vertically stratified but offer limited opportunity for
+    dispersal
+  - Streams are horizontal stratified and offer opportunity for dispersal 
+
+- Develop hypothesis:
+  - about differences between lakes and streams... 
+  - about the different network metrics
+
+&nbsp;
+
+## **0.2 Methods**
+
+- Network metrics: Connectance, Max trophic level, Mean trophic level, number of nodes
+- Environment: Temperature and DBO (to detail)
+
+&nbsp;
+
+## **0.3 Statistical ideas**
+
+- Simple linear model: 
+
+$N_i = \alpha + \beta_0F + \beta_1T_i  + \beta_2T_iF + \beta_3D_i + \beta_4D_iF + \beta_5D_iT_i \beta_6D_iT_iF+ \epsilon$
+
+- With:
+  - $i$: site i
+  - $N_i$: Network metric of site $i$ 
+  - $D$: DBO
+  - $T$: Temperature
+  - $F$: freshwater ecosystem type, lake or stream (logical variable ?)
+  - $\alpha$: intercept 
+  - $\beta$: slope
+  - $\beta_2$, $\beta_4$, $\beta_5$: slope of simple interaction
+    - $\beta_2$: link between network metrics and temperature change with
+      ecosystem type ?
+    - $\beta_4$: link between network metrics and DBO change with
+      ecosystem type ?
+    - $\beta_5$: link between network metrics and DBO change with
+      temperature ? (hyp enrichment and temperature compensate each other)
+  - $\beta_6$: slope of triple interaction; effect of temperature on the link
+    between network metrics and DBO change with ecosystem type ?
+
+- Structural Equation Model (one for each ecosystem type ?) [@gilbert_temperature_2019]:
+
+```{r}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+
+  node [shape = rectangle]
+  rec1 [label = 'Temperature']
+  rec2 [label = 'DBO']
+  rec3 [label =  'Species richness']
+  rec4 [label = 'Number of nodes']
+  rec5 [label = 'Mean trophic level']
+  rec6 [label = 'Max trophic level']
+  rec7 [label = 'Connectance']
+
+  # edge definitions with the node IDs
+  rec1 -> rec3
+  rec1 -> rec4
+  rec1 -> rec5
+  rec1 -> rec6
+  rec1 -> rec7
+
+  rec2 -> rec3
+  rec2 -> rec4
+  rec2 -> rec5
+  rec2 -> rec6
+  rec2 -> rec7
+
+  rec3 -> rec4
+  rec3 -> rec5
+  rec3 -> rec6
+  rec3 -> rec7
+  }",
+  height = 500)
+```
+We certainly need to assess the collinearity among network descriptors in the
+SEM, it may be high, but it was ok in [@danet_food-web_2021].
+
 
 &nbsp;
 
@@ -300,3 +405,5 @@ theme_bw() +
         strip.text.y = element_text(angle = 180, size = 20, face = "bold")) +
   labs(y = NULL, x = NULL)
 ```
+
+# References {-}

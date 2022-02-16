@@ -27,7 +27,8 @@ source_dir(mypath("R"))
 ```
 
 ```{r load}
-myload(ind_size, metaweb_lake, metaweb_analysis, length_analysis, dir = mypath("data"))
+myload(ind_size, metaweb_lake, metaweb_analysis, length_analysis,
+  dir = mypath("data"))
 ```
 
 ```{r}
@@ -241,7 +242,8 @@ size_class_weight_stream <- assign_size_class(
   summarise(bm = sum(weight)) %>%
   ungroup()
 
-weight_fish_lake %<>% filter(id_campagne %in% unique(lake_of_interest$id_campagne))
+weight_fish_lake %<>%
+  filter(id_campagne %in% unique(lake_of_interest$id_campagne))
 size_class_weight_lake <- assign_size_class(
   data = weight_fish_lake %>%
     filter(!is.na(fish),
