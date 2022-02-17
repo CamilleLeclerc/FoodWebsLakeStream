@@ -174,7 +174,8 @@ source(mypath("R", "misc.R"))
 
 - Temperature and enrichment are predicted to have dramatic impacts on food-webs
 
-- Stability is theoretically predicted to have an U-shape with stability [@uszko_effects_2017], higher temperature leading to higher stability in "cold" food-webs, and to lower stability in "hot" food-webs
+- Stability is theoretically predicted to have an U-shape with temperature [@uszko_effects_2017], higher temperature leading to higher stability in "cold" food-webs, and to lower stability in "hot" food-webs
+
 - Futhermore, metabolic theory predicts that higher trophic level suffer most
   from high temperature. Metabolic costs increase exponentially with temperature
   and higher trophic levels have generally higher body mass and then higher
@@ -182,6 +183,7 @@ source(mypath("R", "misc.R"))
 
 - Enrichment (measured here by DBO), is predicted to decrease stability by
   increasing the amplitude of population fluctuations [@rosenzweig_paradox_1971] 
+  
 - Insterestingly, enrichment is predicted to dampens the effect of high
   temperature by increasing resources thereby decreasing starvation risk due to
   high temperature [@tabi_warming_2019]
@@ -231,7 +233,7 @@ $N_i = \alpha + \beta_0F + \beta_1T_i  + \beta_2T_iF + \beta_3D_i + \beta_4D_iF 
 
 - Structural Equation Model (one for each ecosystem type ?) [@gilbert_temperature_2019]:
 
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 DiagrammeR::grViz("digraph {
   graph [layout = dot, rankdir = TB]
 
@@ -266,7 +268,6 @@ DiagrammeR::grViz("digraph {
 ```
 We certainly need to assess the collinearity among network descriptors in the
 SEM, it may be high, but it was ok in [@danet_food-web_2021].
-
 
 &nbsp;
 
