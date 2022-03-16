@@ -20,8 +20,8 @@ library(tidyverse)
 library(magrittr)
 library(kableExtra)
 library(igraph)
-install.packages("~/Documents/post-these/packages/sizeTrophicInteractions_0.0.0.9000.tar.gz")
-library(sizeTrophicInteractions)
+#install.packages("~/Documents/post-these/packages/sizeTrophicInteractions_0.0.0.9000.tar.gz")
+#library(sizeTrophicInteractions)
 
 mypath <- rprojroot::find_package_root_file
 source(mypath("R", "misc.R"))
@@ -45,8 +45,6 @@ ind_size <- left_join(ind_size, code_species_lake, by = "species")
 ind_size <- ind_size %>% select(id_campagne, sp_code, fish)
 colnames(ind_size)[2] <- "species"
 
-lake_of_interest <- read.csv(paste0(mypath("outputs"), "/final_lake_list.txt"), sep="")
-ind_size %<>% filter(id_campagne %in% unique(lake_of_interest$id_campagne))
 
 sp_in_pond <- unique(ind_size$species)
 ```
@@ -74,7 +72,7 @@ missing_ind_size %>%
 
 There are `r length(pond_species_not_in_diet)` that are not in diet data,
 `r nb_ind_not_in_diet` individuals, i.e. a proportion of 
-`r nb_ind_not_in_diet/nrow(ind_size) %>% round(., 2)`. However, more than half of the
+`r nb_ind_not_in_diet/nrow(ind_size) %>% round(., 2)`. However, almost half of the
 missing individuals are represented by "Coregonus lavaretus".
   
 &nbsp;  
