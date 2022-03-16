@@ -15,7 +15,7 @@ library(tidyverse)
 library(magrittr)
 library(kableExtra)
 library(igraph)
-library(sizeTrophicInteractions)
+#library(sizeTrophicInteractions)
 library(furrr)
 
 mypath <- rprojroot::find_package_root_file
@@ -46,9 +46,6 @@ colnames(code_species_lake)[2] <- "species"
 ind_size <- left_join(ind_size, code_species_lake, by = "species")
 ind_size <- ind_size %>% select(id_campagne, sp_code, fish)
 colnames(ind_size)[2] <- "species"
-
-lake_of_interest <- read.csv(paste0(mypath("outputs"), "/final_lake_list.txt"), sep="")
-ind_size %<>% filter(id_campagne %in% unique(lake_of_interest$id_campagne))
 
 network_lake <- build_local_network(
   data = filter(ind_size, species %in% metaweb_lake$size_class$species),
@@ -242,8 +239,7 @@ size_class_weight_stream <- assign_size_class(
   summarise(bm = sum(weight)) %>%
   ungroup()
 
-weight_fish_lake %<>%
-  filter(id_campagne %in% unique(lake_of_interest$id_campagne))
+
 size_class_weight_lake <- assign_size_class(
   data = weight_fish_lake %>%
     filter(!is.na(fish),
