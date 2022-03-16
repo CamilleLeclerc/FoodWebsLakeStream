@@ -58,8 +58,7 @@ prep_data$moving_avg <- parallel::mclapply(prep_data$data, function(x) {
 prep_data %<>%
   unnest()
 prep_data %<>%
-  filter(date > "2006-12-31") %<>%
-  filter(date < "2017-01-01")
+  filter(date < "2019-01-01")
 
 # Yearly avg
 yearly_avg_temp <- prep_data %>%
