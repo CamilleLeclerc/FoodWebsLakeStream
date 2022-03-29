@@ -29,7 +29,7 @@ source(mypath("R", "misc.R"))
   myload(network_lake_metrics, dir = mypath("data"))
   plando_spatial_coordinates <- read_csv("data-raw/plando_spatial_coordinates.csv")
   colnames(plando_spatial_coordinates)[1] <- "code_lac"
-  lake_analysis <- read.csv("C:/Users/Camille/Desktop/FoodWebsRiverLake/outputs/lake_list.txt", sep = "")
+  lake_analysis <- read.csv("outputs/lake_list.txt", sep = "")
   lake_analysis$station_date <- paste(lake_analysis$code_lac, lake_analysis$camp_annee, sep = "_")
   
   
