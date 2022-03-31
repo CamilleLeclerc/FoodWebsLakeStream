@@ -223,6 +223,11 @@ chart.Correlation(data_final %>%
                     dplyr::select(dbo, temp),
                   histogram = TRUE, method = "pearson") 
 
+#correlation environmental variables - stream & lake
+chart.Correlation(data_final %>%
+                    dplyr::select(dbo, temp),
+                  histogram = TRUE, method = "pearson") 
+
 
 ## Food web metrics
 tbl.fw <- data_final %>%
@@ -263,7 +268,10 @@ chart.Correlation(data_final %>%
                     dplyr::select(connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl),
                   histogram = TRUE, method = "pearson") 
 
-
+#correlation food web metrics - lake
+chart.Correlation(data_final %>%
+                    dplyr::select(connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl),
+                  histogram = TRUE, method = "pearson") 
     
 ## Food web metrics vs. Environmental variables
 data <- data_final %>%
