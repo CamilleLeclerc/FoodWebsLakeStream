@@ -18,3 +18,4 @@ data-raw/physico_chemistry_data.csv
 vignettes/metaweb_cache
 vignettes/metaweb_files
 data-raw/lake_temperature
+data-raw/lake_individual_size.txt
