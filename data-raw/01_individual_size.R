@@ -10,6 +10,8 @@ source(mypath("R", "misc.R"))
 #txt_files_ls = list.files(path = "./outputs/lake_individual_size", pattern="*\\.txt$", recursive = TRUE, full.names = TRUE) 
 #txt_files_df <- lapply(txt_files_ls, function(x) {read.table(file = x, header = T, sep ="")})
 #combined_df <- do.call("rbind", lapply(txt_files_df, as.data.frame)) 
+#combined_df <- combined_df[!(combined_df$code_lac == "ANN74" & combined_df$camp_annee == 2012),]
+#combined_df <- combined_df[!(combined_df$code_lac == "LEM74" & combined_df$camp_annee == 2015),]
 #write.table(combined_df, "data-raw/lake_individual_size.txt", row.names = FALSE)
 #rm(txt_files_ls, txt_files_df, combined_df)
 
@@ -22,13 +24,10 @@ summary(lake_size)
 
 
 # Separate data to avoid too much redundancy in table
-sampling_protocol <- lake_size %>%
-  select(code_lac, camp_annee, id_campagne, date_pose:strate)
+sampling_protocol <- unique(lake_size %>% select(code_lac:id_point_prelev, date_pose:strate))
 usethis::use_data(sampling_protocol, overwrite = TRUE)
 
-station <- lake_size %>%
-  select(code_lac, coord_x, coord_y) %>%
-  distinct()
+station <- unique(lake_size %>% select(code_lac:id_point_prelev, coord_x:cd_proj))
 usethis::use_data(station, overwrite = TRUE)
 
 # Check unique sampling:
@@ -39,19 +38,16 @@ lake_size %>%
 #pb: more campaign than combination of lake/year
 unique(lake_size$id_campagne) %>% length
 lake_size %>% select(code_lac, camp_annee) %>% unique(.) %>% nrow
-# Camille said:
-#id_campagne est bien un identifiant unique associé à chaque campagne de pêche.
-#Effectivement, pour certains lacs alpins (ANN74 et LEM74) il y a deux campagnes
-#la même année (respectivement 2012 et 2015). D'ailleurs, de ce que l'on m'a
-#dit, ces lacs ont des années d'échantillonnages parfois partielles, effectuées
-#avec un nombre plus restreint de filet. Je pense qu'il ne faudra pas les
-#considérer.  Je regarderais ça en détails et mettrais un script et un output
-#dispo sur github.
+#Note :
+#id_campagne est un identifiant unique associé à chaque campagne de pêche.
+#Pour certains lacs alpins (ANN74 et LEM74) il y a deux campagnes
+#la même année (respectivement 2012 et 2015) avec parfois des échantillonnages
+#parfois partielles, effectuées avec un nombre plus restreint de filet.
+#En conséquence, les données ANN74-2012 et LEM75-2015 n'ont pas été prises en compte.
 
 # Get individual size for fishes 
 
-ind_size <- lake_size %>%
-  select(id_campagne, species, fish)
+ind_size <- lake_size %>% select(code_lac:id_point_prelev, species, fish)
 
 #problem: the txt stored vector as character ! 
 head(ind_size$fish)
