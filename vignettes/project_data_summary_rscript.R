@@ -1,6 +1,6 @@
 rm(list=ls())
 
-## R sert-up
+## R set-up
 library(dplyr)
 library(ggplot2)
 library(ggpubr)
@@ -18,9 +18,6 @@ library(tidyverse)
 
 mypath <- rprojroot::find_package_root_file
 source(mypath("R", "misc.R"))
-
-## Time period
-  #2005 - 2017
 
 
 ## Dataset
