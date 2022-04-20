@@ -164,8 +164,8 @@ freshwater_ecosystems$LbBH[freshwater_ecosystems$LbBH == "RhÃ´ne-MÃ©diterran
 
 #LEM74 data are missing
 gDists <- gDistance(coordinates_freshwater_ecosystems[130,], BassinHydrographique, byid = TRUE)
-BassinHydrographique@data$LbBH[which.min(gDists)]
 BassinHydrographique@data$CdBH[which.min(gDists)]
+BassinHydrographique@data$LbBH[which.min(gDists)]
 freshwater_ecosystems$CdBH[freshwater_ecosystems$station == "LEM74"] <- "06"
 freshwater_ecosystems$LbBH[freshwater_ecosystems$station == "LEM74"] <- "Rhone-Mediterranee"
 rm(gDists)
@@ -192,8 +192,8 @@ nrow(unique(freshwater_ecosystems %>% select(CdOH, TopoOH))) #572 BV sur 629 sys
 gDists <- gDistance(coordinates_freshwater_ecosystems[130,], BassinVersant, byid = TRUE)
 BassinVersant@data$CdOH[which.min(gDists)]
 BassinVersant@data$TopoOH[which.min(gDists)]
-#freshwater_ecosystems$CdOH[freshwater_ecosystems$station == "LEM74"] <- "XX"
-#freshwater_ecosystems$TopoOH[freshwater_ecosystems$station == "LEM74"] <- "XX"
+freshwater_ecosystems$CdOH[freshwater_ecosystems$station == "LEM74"] <- "06B0000002150460899"
+freshwater_ecosystems$TopoOH[freshwater_ecosystems$station == "LEM74"] <- "Le lac LÃ©man de la Morge au torrent de la Dranse"
 #CdOH: Code de l'objet hydrographique - bassin versant topographique
 #TopoOH: Toponyme de l'objet hydrographique bassin versant topographique
 
@@ -217,5 +217,5 @@ for (i in 1:nrow(freshwater_ecosystems)) {
 
 
 
-
-#mysave(supp_data_lake_stream, dir = mypath("data"), overwrite = TRUE)
+supp_data_lake_stream <- freshwater_ecosystems
+mysave(supp_data_lake_stream, dir = mypath("data"), overwrite = TRUE)
