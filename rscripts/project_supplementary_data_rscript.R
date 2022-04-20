@@ -10,7 +10,9 @@ library(knitr)
 library(magrittr)
 library(maptools)
 library(PerformanceAnalytics)
+library(raster)
 library(rgdal)
+library(rgeos)
 library(rnaturalearth)
 library(rstatix)
 library(sf)
@@ -159,8 +161,14 @@ freshwater_ecosystems <- cbind(freshwater_ecosystems, over(coordinates_freshwate
 freshwater_ecosystems <- freshwater_ecosystems %>% select(type, station, lat, long, CdBH, LbBH)
 unique(freshwater_ecosystems %>% select(CdBH, LbBH))
 freshwater_ecosystems$LbBH[freshwater_ecosystems$LbBH == "RhÃ´ne-MÃ©diterranÃ©e"] <- "Rhone-Mediterranee"
+
+#LEM74 data are missing
+gDists <- gDistance(coordinates_freshwater_ecosystems[130,], BassinHydrographique, byid = TRUE)
+BassinHydrographique@data$LbBH[which.min(gDists)]
+BassinHydrographique@data$CdBH[which.min(gDists)]
 freshwater_ecosystems$CdBH[freshwater_ecosystems$station == "LEM74"] <- "06"
 freshwater_ecosystems$LbBH[freshwater_ecosystems$station == "LEM74"] <- "Rhone-Mediterranee"
+rm(gDists)
 #CdBH: Code du bassin hydrographique
 #LbBH: Libelle du bassin hydrographique
 
@@ -179,6 +187,11 @@ freshwater_ecosystems <- cbind(freshwater_ecosystems, over(coordinates_freshwate
 colnames(freshwater_ecosystems)[18] <- "CdBH.2"
 freshwater_ecosystems <- freshwater_ecosystems %>% select(type, station, lat, long, CdBH, LbBH, CdOH, TopoOH)
 nrow(unique(freshwater_ecosystems %>% select(CdOH, TopoOH))) #572 BV sur 629 systèmes d'eau douce (lac + riviere)
+
+#LEM74 data are missing
+gDists <- gDistance(coordinates_freshwater_ecosystems[130,], BassinVersant, byid = TRUE)
+BassinVersant@data$CdOH[which.min(gDists)]
+BassinVersant@data$TopoOH[which.min(gDists)]
 #freshwater_ecosystems$CdOH[freshwater_ecosystems$station == "LEM74"] <- "XX"
 #freshwater_ecosystems$TopoOH[freshwater_ecosystems$station == "LEM74"] <- "XX"
 #CdOH: Code de l'objet hydrographique - bassin versant topographique
@@ -188,11 +201,21 @@ nrow(unique(freshwater_ecosystems %>% select(CdOH, TopoOH))) #572 BV sur 629 sys
 ##-------------------------------------------------------------------------------------
 ## EXTRACT INFORMATION ABOUT 'BASSIN VERSANT TOPOGRAPHIQUE' AND 'BASSIN HYDROGRAPHIQUE'
 ##-------------------------------------------------------------------------------------
-#https://bdtopage.eaufrance.fr/page/donnees
+
+#alt <- getData('alt', country = 'FRA', mask = FALSE) #'alt' stands for altitude (elevation); the data were aggregated from SRTM 90 m resolution data between -60 and 60 latitude.
+#freshwater_ecosystems <- cbind(freshwater_ecosystems, as.data.frame(raster::extract(alt, coordinates_freshwater_ecosystems)))
+#colnames(freshwater_ecosystems)[9] <- "altitude"
+
+freshwater_ecosystems$altitude <- NA
+
+for (i in 1:nrow(freshwater_ecosystems)) {
+  
+  srtm <- getData('SRTM', lon = freshwater_ecosystems[i, 4], lat = freshwater_ecosystems[i, 3]) #'SRTM' refers to the hole-filled CGIAR-SRTM (90 m resolution).
+  freshwater_ecosystems[i, 9] <- raster::extract(srtm, coordinates_freshwater_ecosystems[i,])
+  
+}
 
 
 
 
-
-#mysave(supp_data_lake_stream,
-#       dir = mypath("data"), overwrite = TRUE)
+#mysave(supp_data_lake_stream, dir = mypath("data"), overwrite = TRUE)
