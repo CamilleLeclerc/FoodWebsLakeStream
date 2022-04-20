@@ -8,7 +8,32 @@
 # Session Data files
 .RData
 
-# Large files
+# Large or undesirable files
+FRA_alt.grd
+FRA_alt.gri
+FRA_alt.vrt
+readme.txt
+srtm_36_03.hdr
+srtm_36_03.tfw
+srtm_36_03.tif
+srtm_36_04.hdr
+srtm_36_04.tfw
+srtm_36_04.tif
+srtm_37_02.hdr
+srtm_37_02.tfw
+srtm_37_02.tif
+srtm_37_03.hdr
+srtm_37_03.tfw
+srtm_37_03.tif
+srtm_37_04.hdr
+srtm_37_04.tfw
+srtm_37_04.tif
+srtm_38_03.hdr
+srtm_38_03.tfw
+srtm_38_03.tif
+srtm_38_04.hdr
+srtm_38_04.tfw
+srtm_38_04.tif
 data-raw/fish_data.csv
 data-raw/physico_chemistry_data.csv
 R/metaweb_build.R
