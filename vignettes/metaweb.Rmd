@@ -72,8 +72,7 @@ missing_ind_size %>%
 
 There are `r length(pond_species_not_in_diet)` that are not in diet data,
 `r nb_ind_not_in_diet` individuals, i.e. a proportion of 
-`r nb_ind_not_in_diet/nrow(ind_size) %>% round(., 2)`. However, almost half of the
-missing individuals are represented by "Coregonus lavaretus".
+`r nb_ind_not_in_diet/nrow(ind_size) %>% round(., 2)`.
   
 &nbsp;  
   
