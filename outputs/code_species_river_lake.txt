@@ -1,7 +1,7 @@
 sp_code	sp_river	sp_lake
 BRE	Abramis brama	Abramis
 BRE	Abramis brama	Abramis brama
-Acipenser ruthenus	"NA"	Acipenser ruthenus
+EST	"NA"	Acipenser ruthenus
 SPI	Alburnoides bipunctatus	Alburnoides bipunctatus
 ABL	Alburnus alburnus	Alburnus alburnus
 PCH	Ameiurus melas	Ameiurus melas
@@ -11,15 +11,15 @@ LOF	Barbatula barbatula	Barbatula barbatula
 BAF	Barbus barbus	Barbus barbus
 BAM	Barbus meridionalis	"NA"
 BRB	Blicca bjoerkna	Blicca bjoerkna
-Carassius auratus	"NA"	Carassius auratus
+PRO	"NA"	Carassius auratus
 CAS	Carassius carassius	Carassius carassius
-Carassius gibelio	"NA"	Carassius gibelio
-Chelon auratus	"NA"	Chelon auratus
-Chelon ramada	"NA"	Chelon ramada
+CAR	"NA"	Carassius gibelio
+MLD	"NA"	Chelon auratus
+MLP	"NA"	Chelon ramada
 HOT	Chondrostoma nasus	Chondrostoma nasus
 TOX	Chondrostoma toxostoma	Parachondrostoma toxostoma
 LOR	Cobitis taenia	Cobitis taenia
-Coregonus lavaretus	"NA"	Coregonus lavaretus
+COR	"NA"	Coregonus lavaretus
 CHA	Cottus gobio	Cottus gobio
 CHP	Cottus petiti	"NA"	
 Cyprinidae	"NA"	Cyprinidae
@@ -29,7 +29,7 @@ GAM	Gambusia affinis	Gambusia affinis
 EPI	Gasterosteus aculeatus	Gasterosteus aculeatus
 GOU	Gobio gobio	Gobio gobio
 GRE	Gymnocephalus cernua	Gymnocephalus cernua
-Hypophthalmichthys molitrix	"NA"	Hypophthalmichthys molitrix
+CPA	"NA"	Hypophthalmichthys molitrix
 PES	Lepomis gibbosus	Lepomis gibbosus
 ABH	Leucaspius delineatus	Leucaspius delineatus
 VAR	Leuciscus burdigalensis	Leuciscus burdigalensis
@@ -40,13 +40,13 @@ LOT	Lota lota	Lota lota
 BBG	Micropterus salmoides	Micropterus salmoides
 LOE	Misgurnus fossilis	"NA"	
 Mugilidae	"NA"	Mugilidae
-Neogobius melanostomus	"NA"	Neogobius melanostomus
+GTN	"NA"	Neogobius melanostomus
 TAC	Oncorhynchus mykiss	Oncorhynchus mykiss
 PAP	Pachychilon pictus	"NA"	
 PER	Perca fluviatilis	Perca fluviatilis
 Percidae	"NA"	Percidae
 VAI	Phoxinus phoxinus	Phoxinus phoxinus
-Ponticola kessleri	"NA"	Ponticola kessleri
+GKE	"NA"	Ponticola kessleri
 PSR	Pseudorasbora parva	Pseudorasbora parva
 EPT	Pungitius pungitius	"NA"	
 BOU	Rhodeus amarus	Rhodeus amarus
@@ -54,9 +54,9 @@ GAR	Rutilus rutilus	Rutilus rutilus
 BLE	Salaria fluviatilis	Salaria fluviatilis
 OBL	Salvelinus alpinus	Salvelinus alpinus
 SDF	Salvelinus fontinalis	Salvelinus fontinalis
-Salvelinus namaycush	"NA"	Salvelinus namaycush
+CRI	"NA"	Salvelinus namaycush
 ROT	Scardinius erythrophtalmus	Scardinius erythrophthalmus
-Scardinius hesperidicus	"NA"	Scardinius hesperidicus
+SCH	"NA"	Scardinius hesperidicus
 SIL	Silurus glanis	Silurus glanis
 SAN	Stizostedion lucioperca	Sander lucioperca
 BLN	Telestes souffia	Telestes souffia

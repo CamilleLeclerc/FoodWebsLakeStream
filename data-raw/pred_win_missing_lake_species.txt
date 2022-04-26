@@ -1,0 +1,12 @@
+species	alpha_min	beta_min	alpha_max	beta_max	alpha_mean	beta_mean	source	remark
+CAR	0	0.03	0	0.455	0	0	NA	NA
+COR	0	0.03	0	0.455	0	0	NA	NA
+CPA	0	0.00	0	0.000	0	0	NA	NA
+CRI	0	0.03	0	0.455	0	0	NA	NA
+EST	0	0.00	0	0.000	0	0	NA	NA
+GKE	0	0.00	0	0.000	0	0	NA	NA
+GTN	0	0.00	0	0.000	0	0	NA	NA
+MLD	0	0.00	0	0.000	0	0	NA	NA
+MLP	0	0.03	0	0.455	0	0	NA	NA
+PRO	0	0.03	0	0.455	0	0	NA	NA
+SCH	0	0.00	0	0.000	0	0	NA	NA
