@@ -107,6 +107,8 @@ source(mypath("R", "misc.R"))
   
   
   data_lake <- left_join(env_lake, metric_lake, by = "id_campagne")
+  data_lake <- data_lake[!(data_lake$code_lac == "ANN74" & data_lake$camp_annee == 2012),]
+  data_lake <- data_lake[!(data_lake$code_lac == "LEM74" & data_lake$camp_annee == 2015),]
   data_lake <- left_join(data_lake, plando_spatial_coordinates, by = "code_lac")
   data_lake$type <- "lake"
   data_lake <- data_lake %>% dplyr::select(type, code_lac, id_campagne, camp_annee, dbo, temp, connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl, lat_plando, long_plando)
@@ -291,7 +293,7 @@ SEM, it may be high, but it was ok in [@danet_food-web_2021].
 
 # **1. Temporal and spatial coverage**
 Due to biological and environmental data availability, the temporal coverage is from 2005 to 2017.  
-256 sampled lakes (with a total of 401 obs) and 373 sampled stream stations (with a total of 2,791 obs) were considered.
+256 sampled lakes (with a total of 397 obs) and 373 sampled stream stations (with a total of 2,791 obs) were considered.
 
 ```{r, include = FALSE , echo=FALSE, message = FALSE, warning = FALSE}
 coordinates <- rbind(plando_spatial_coordinates, stream_spatial_coordinates)
