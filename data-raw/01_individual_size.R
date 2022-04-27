@@ -77,4 +77,5 @@ ind_size %<>%
 # Remove spaces in species to avoid mismatches error
 ind_size %<>%
   mutate(species = str_replace_all(species, " ", "_"))
+
 usethis::use_data(ind_size, overwrite = TRUE)
