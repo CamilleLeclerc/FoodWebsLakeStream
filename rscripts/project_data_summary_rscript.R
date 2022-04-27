@@ -60,6 +60,8 @@ source(mypath("R", "misc.R"))
   
   
   data_lake <- left_join(env_lake, metric_lake, by = "id_campagne")
+  data_lake <- data_lake[!(data_lake$code_lac == "ANN74" & data_lake$camp_annee == 2012),]
+  data_lake <- data_lake[!(data_lake$code_lac == "LEM74" & data_lake$camp_annee == 2015),]
   data_lake <- left_join(data_lake, plando_spatial_coordinates, by = "code_lac")
   data_lake$type <- "lake"
   data_lake <- data_lake %>% dplyr::select(type, code_lac, id_campagne, camp_annee, dbo, temp, connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl, lat_plando, long_plando)
