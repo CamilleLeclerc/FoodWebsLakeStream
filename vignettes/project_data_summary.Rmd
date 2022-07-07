@@ -71,9 +71,9 @@ source(mypath("R", "misc.R"))
   # Lake data
   myload(yearly_avg_dbo5_lake, yearly_avg_temp_lake, dir = mypath("outputs"))    
   myload(network_lake_metrics, dir = mypath("data"))
-  plando_spatial_coordinates <- read_csv("data-raw/plando_spatial_coordinates.csv")
+  plando_spatial_coordinates <- read_csv(mypath("data-raw/plando_spatial_coordinates.csv"))
   colnames(plando_spatial_coordinates)[1] <- "code_lac"
-  lake_analysis <- read.csv("outputs/lake_list.txt", sep = "")
+  lake_analysis <- read.csv(mypath("outputs/lake_list.txt"), sep = "")
   lake_analysis$station_date <- paste(lake_analysis$code_lac, lake_analysis$camp_annee, sep = "_")
   
   
@@ -260,7 +260,7 @@ DiagrammeR::grViz("digraph {
   node [shape = rectangle]
   rec1 [label = 'Temperature']
   rec2 [label = 'DBO']
-  rec3 [label =  'Species richness']
+  rec3 [label = 'Species richness']
   rec4 [label = 'Number of nodes']
   rec5 [label = 'Mean trophic level']
   rec6 [label = 'Max trophic level']
@@ -440,7 +440,7 @@ data <- data_final %>%
           mutate(fw_metric = replace(fw_metric, fw_metric == "max_troph_lvl", "max trophic level"))
 
     
-ggplot(data , aes(x = env_value, y = metric_value, fill = type, color = type)) +
+ggplot(data, aes(x = env_value, y = metric_value, fill = type, color = type)) +
   geom_point(shape = 21, colour = "#000000", size = 2, alpha = 0.2) +
   geom_smooth(method = "lm") +
   scale_fill_manual(values = c("#482878FF", "#1F9E89FF"), name = " ") +
@@ -457,5 +457,144 @@ theme_bw() +
         strip.text.y = element_text(angle = 180, size = 20, face = "bold")) +
   labs(y = NULL, x = NULL)
 ```
+
+&nbsp;
+
+# **5. SEM: Environmental variables vs. Food web metrics**
+
+```{r}
+library(DiagrammeR)
+library(piecewiseSEM)
+library(semEff)
+plot.psem <- function(
+  x,
+  return=FALSE,
+  node_attrs = data.frame(shape = "rectangle", color = "black",
+    fillcolor = "white"),
+  edge_attrs = data.frame(style = "solid", color="black"),
+  ns_dashed = T, alpha=0.05,
+  show = "std", digits = 3, 
+  add_edge_label_spaces = TRUE, ...
+  ){
+
+  #get the coefficients table
+  ctab <- coefs(x)
+  ctab$Response <- as.character(ctab$Response)
+  ctab$Predictor <- as.character(ctab$Predictor)
+
+  #make a nodes DF
+  unique_nodes <- unique(c(ctab$Response, ctab$Predictor))
+  nodes <- create_node_df(n = length(unique_nodes),
+    nodes = unique_nodes,
+    type = "lower",
+    label = unique_nodes)
+  nodes <- cbind(nodes, node_attrs)
+  nodes[] <- lapply(nodes, as.character)
+  nodes$id <- as.numeric(nodes$id)
+
+  #make an edges DF
+  edges <- create_edge_df(
+    from = match(ctab$Predictor, unique_nodes),
+    to = match(ctab$Response, unique_nodes))
+
+  edges <- data.frame(edges, edge_attrs)
+  edges[] <- lapply(edges, as.character)
+  edges$id <- as.numeric(edges$id)
+  edges$from <- as.numeric(edges$from)
+  edges$to <- as.numeric(edges$to)
+  if(ns_dashed) edges$style[which(ctab$P.Value>alpha)] <- "dashed"
+  if(show == "std") edges$label = round(ctab$`Std.Estimate`, digits)
+  if(show == "unstd") edges$label = round(ctab$Estimate, digits)
+  if(add_edge_label_spaces) edges$label = paste0(" ", edges$label, " ")
+
+  #turn into a graph
+  sem_graph <- create_graph(nodes, edges, directed=TRUE)
+
+  if(return) return(sem_graph)
+
+  render_graph(sem_graph, ...)
+
+}
+```
+
+- Low VIF:
+
+```{r}
+data_analysis <- na.omit(data_final)
+ti <- lm(nbnode ~ richness + dbo + temp, data_analysis)
+performance::check_collinearity(ti)
+```
+
+```{r}
+sem <- list(
+  lm(nbnode ~ richness + dbo + temp, data_analysis),
+  lm(connectance ~ richness + dbo + temp, data_analysis),
+  lm(w_trph_lvl_avg ~ richness + dbo + temp, data_analysis),
+  lm(max_troph_lvl ~ richness + dbo + temp, data_analysis),
+
+  lm(richness ~ dbo + temp, data_analysis)
+
+)
+mypsem <- as.psem(sem)
+```
+
+```{r}
+plot(mypsem,
+  node_attrs = data.frame(
+    shape = "rectangle", fixedsize = TRUE, width = .8, color = "black",
+    fillcolor = "lightgrey"),
+  layout = "tree"
+)
+```
+
+
+
+```{r, eval = FALSE}
+semeff <- semEff(
+  sem, R = 100, seed = 13,
+  parallel = "multicore", ncpus = 3, type = "parametric")
+semeff
+```
+
+```{r}
+pmultigroup <- multigroup(mypsem, group = "type")
+pmultigroup
+```
+
+### test of difference lake/stream 
+
+```{r}
+pmultigroup$anovaInts %>%
+  kable() %>%
+  kable_styling()
+```
+
+- Main differences:
+  - Negative connectance richness in streams but not in Lake 
+  - Negative connectance DBO in lake but not in stream
+  - Negative average trophic level DBO in lake but not in stream
+  - Negative maximum trophic level DBO in lake but not in stream
+  - Positive richness DBO in streams but not in lake
+  - Positive richness temperature in streams but not in lake
+
+```{r}
+std_lake_stream <- rbind(
+  pmultigroup$group.coefs$lake %>%
+    select(Response, Predictor, Std.Estimate) %>%
+    mutate(type = "lake"),
+  pmultigroup$group.coefs$stream %>%
+    select(Response, Predictor, Std.Estimate) %>%
+    mutate(type = "stream")
+) %>%
+pivot_wider(names_from = "type", values_from = "Std.Estimate") %>%
+mutate(across((c("lake", "stream")), as.numeric))
+```
+
+```{r}
+std_lake_stream %>%
+  kable() %>%
+  kable_styling()
+```
+
 
 # References {-}
