@@ -19,7 +19,7 @@ source("./R/misc.R")
 ##-------------
 ## FISH DATASET
 ##-------------
-db.fish <- read.csv("data-raw/fish_data.csv", sep = ";") #fish_data.csv is too large to be on github ; it is listed in gitignore
+db.fish <- read.csv("data-raw/fish_data.csv") #fish_data.csv is too large to be on github ; it is listed in gitignore
 head(db.fish)
 
 ##Focused period for the project is 2005 - 2018
