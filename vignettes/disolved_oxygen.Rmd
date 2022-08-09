@@ -56,7 +56,7 @@ library(ade4)
 library(factoextra)
 
 source(mypath("R", "misc.R"))
-myload(env_stream, dir = mypath("data"))
+myload(env_stream, dataset_lake_stream, dir = mypath("data"))
 ```
 # Summary
 
@@ -71,6 +71,7 @@ myload(env_stream, dir = mypath("data"))
 
 
 ```{r}
+env_stream <- env_stream %>% filter(opcod %in% (dataset_lake_stream %>% filter(type == "stream") %>% select(opcod) %>% unique(.) %>% t(.) %>% as.character(.)))
 lm_list <- list(
   lm(oxygen ~ dbo + temp, env_stream),
   lm(dbo ~ nitrogen + phosphore + temp, env_stream)
