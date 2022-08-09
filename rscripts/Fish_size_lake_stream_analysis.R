@@ -83,6 +83,10 @@ class(ind_size$length)
 class(ind_size$year) ; ind_size$year <- as.factor(ind_size$year) ; class(ind_size$year)
 ind_size$period <-"2005-2017"
 
+ind_size_lake_stream <- ind_size
+mysave(ind_size_lake_stream,
+       dir = mypath("data"), overwrite = TRUE)
+
 
 ##SIZE DISTRIBUTION BY TYPE
 ggplot(data = ind_size, aes(x = period, y = length, fill = type)) +
