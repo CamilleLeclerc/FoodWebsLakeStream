@@ -1,0 +1,108 @@
+---
+title: "Environmental"
+author: "Alain Danet"
+output: html_document
+bibliography: "../doc/references.bib"
+---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 18px;
+      text-align: justify;
+  }
+td {  /* Table  */
+  font-size: 18px;
+}
+h1.title {
+  font-size: 38px;
+  color: Black;
+  text-align: justify;
+}
+h1 { /* Header 1 */
+  font-size: 20px;
+  color: #9e0142;
+  text-align: justify;
+}
+h2 { /* Header 2 */
+    font-size: 18px;
+  color: #d53e4f;
+  text-align: justify;
+}
+code.r{ /* Code block */
+    font-size: 18px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 18px;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+mypath <- rprojroot::find_package_root_file
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, dev = "svg")
+knitr::opts_knit$set(root.dir = mypath())
+```
+
+
+```{r, include = FALSE , echo=FALSE, message = FALSE, warning = FALSE}
+## R sert-up
+library(sf)
+library(tidyverse)
+library(magrittr)
+library(piecewiseSEM)
+library(corrplot)
+library(ade4)
+library(factoextra)
+
+source(mypath("R", "misc.R"))
+myload(env_stream, dir = mypath("data"))
+```
+# Summary
+
+- Temperature and DBO both decrease disolved oxygen
+- Nitrogen matters has a strong positive effect on DBO  
+
+# SEM
+
+- SEM:
+  - oxygene dissous ~ DBO + temperature
+  - DBO ~ nitrate + azote + temperature
+
+
+```{r}
+lm_list <- list(
+  lm(oxygen ~ dbo + temp, env_stream),
+  lm(dbo ~ nitrogen + phosphore + temp, env_stream)
+)
+sem <- as.psem(lm_list)
+summary(sem)
+plot(sem)
+```
+
+```{r}
+performance::check_collinearity(lm_list[[1]])
+performance::check_collinearity(lm_list[[2]])
+```
+
+# PCA
+
+```{r}
+env_var <- c("dbo", "temp", "oxygen", "nitrogen", "phosphore")
+corrplot(cor(env_stream[, env_var]), type = "upper", diag = FALSE)
+```
+
+```{r}
+pca <- dudi.pca(env_stream[, env_var], nf = 3, scannf = FALSE)
+cowplot::plot_grid(
+fviz_pca_var(pca, axes = c(1, 2)),
+fviz_pca_var(pca, axes = c(2, 3))
+)
+
+```
+
+
+
+
+
+

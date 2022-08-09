@@ -138,14 +138,50 @@ source(mypath("R", "misc.R"))
                   group_by(id, year) %>%
                   slice(which.min(value.predSE))
   temp_stream$station_date <- paste( temp_stream$id,  temp_stream$year, sep = "_")
+
   
   
-  env_stream <- left_join(op_analysis %>% as.data.frame(.) %>% dplyr::select(opcod, station, year, station_date), dbo_stream %>% as.data.frame(.) %>% dplyr::select(press, station_date), by = "station_date")
-  env_stream <- left_join(env_stream, temp_stream %>% as.data.frame(.) %>% select(value_corrected, station_date), by = "station_date")
+  env_stream <- left_join(
+    op_analysis %>%
+      as.data.frame(.) %>%
+      dplyr::select(opcod, station, year, station_date),
+    dbo_stream %>%
+      as.data.frame(.) %>%
+      dplyr::select(press, station_date),
+    by = "station_date")
+  env_stream <- left_join(env_stream,
+    temp_stream %>%
+      as.data.frame(.) %>%
+      select(value_corrected, station_date),
+    by = "station_date")
   colnames(env_stream)[5] <- "dbo" ; colnames(env_stream)[6] <- "temp"
   env_stream <- env_stream %>% drop_na(dbo) %>% drop_na(temp)
   sort(unique(env_stream$year))
   length(unique(env_stream$station)) ; length(unique(env_stream$opcod))
+
+  # disolved oxygen and its predictor
+  chem_var <- c("disolved_oxygen", "matieres azotees", "matieres phosphorees")
+  tmp <- yearly_avg_water_chemical_stream %>%
+    filter(category %in% chem_var) %>%
+    mutate(
+      category = str_replace_all(
+        category,
+        c(
+          "disolved_oxygen" = "oxygen",
+          "matieres azotees" = "nitrogen",
+          "matieres phosphorees" = "phosphore"
+        )
+      )
+    ) %>%
+    pivot_wider(names_from = "category", values_from = "press")
+
+  env_stream <- env_stream %>%
+    left_join(
+      tmp %>%
+        rename(station = id),
+      by = c("station", "year")
+    )
+  mysave(env_stream, dir = mypath("data"), overwrite = TRUE)
   
   
   length(unique(env_stream$opcod)) ; length(unique(network_stream_metrics$opcod))
