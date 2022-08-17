@@ -54,52 +54,72 @@ library(piecewiseSEM)
 library(corrplot)
 library(ade4)
 library(factoextra)
+library(cowplot)
 
 source(mypath("R", "misc.R"))
-myload(env_stream, dataset_lake_stream, dir = mypath("data"))
+myload(env_stream, env_lake, dataset_lake_stream, dir = mypath("data"))
 ```
-# Summary
-
-- Temperature and DBO both decrease disolved oxygen
+# Summary  
+*Stream:  
+- Temperature and DBO both decrease disolved oxygen  
 - Nitrogen matters has a strong positive effect on DBO  
 
-# SEM
+*Lake:  
+- Only temperature decreases disolved oxygen but the effect is not significant  
+- Phosphore matters has a strong positive effect on DBO  
 
-- SEM:
-  - oxygene dissous ~ DBO + temperature
-  - DBO ~ nitrate + azote + temperature
+
+# SEM  
+- disolved oxygen ~ DBO + temperature  
+- DBO ~ nitrogen + phosphore + temperature  
 
 
 ```{r}
 env_stream <- env_stream %>% filter(opcod %in% (dataset_lake_stream %>% filter(type == "stream") %>% select(opcod) %>% unique(.) %>% t(.) %>% as.character(.)))
-lm_list <- list(
-  lm(oxygen ~ dbo + temp, env_stream),
-  lm(dbo ~ nitrogen + phosphore + temp, env_stream)
-)
-sem <- as.psem(lm_list)
-summary(sem)
-plot(sem)
+env_lake <- na.omit(env_lake)
+
+
+lm_list_stream <- list(lm(oxygen ~ dbo + temp, env_stream), lm(dbo ~ nitrogen + phosphore + temp, env_stream))
+lm_list_lake <- list(lm(oxygen ~ dbo + temp, env_lake), lm(dbo ~ nitrogen + phosphore + temp, env_lake))
+
+sem_stream <- as.psem(lm_list_stream); sem_lake <- as.psem(lm_list_lake)
+summary(sem_stream); summary(sem_lake)
+plot(sem_stream, title = "SEM - Stream"); plot(sem_lake, title = "SEM - Lake")
 ```
 
 ```{r}
-performance::check_collinearity(lm_list[[1]])
-performance::check_collinearity(lm_list[[2]])
+#stream
+performance::check_collinearity(lm_list_stream[[1]])
+performance::check_collinearity(lm_list_stream[[2]])
+
+#lake
+performance::check_collinearity(lm_list_lake[[1]])
+performance::check_collinearity(lm_list_lake[[2]])
 ```
 
 # PCA
 
 ```{r}
 env_var <- c("dbo", "temp", "oxygen", "nitrogen", "phosphore")
-corrplot(cor(env_stream[, env_var]), type = "upper", diag = FALSE)
+corrplot(cor(env_stream[, env_var]), type = "upper", diag = FALSE, title = "Stream")
+corrplot(cor(env_lake[, env_var]), type = "upper", diag = FALSE, title = "Lake")
 ```
 
 ```{r}
-pca <- dudi.pca(env_stream[, env_var], nf = 3, scannf = FALSE)
-cowplot::plot_grid(
-fviz_pca_var(pca, axes = c(1, 2)),
-fviz_pca_var(pca, axes = c(2, 3))
-)
+pca_stream <- dudi.pca(env_stream[, env_var], nf = 3, scannf = FALSE)
+pca_lake <- dudi.pca(env_lake[, env_var], nf = 3, scannf = FALSE)
 
+p_stream <- cowplot::plot_grid(
+  fviz_pca_var(pca_stream, axes = c(1, 2)),
+  fviz_pca_var(pca_stream, axes = c(2, 3)))
+plot_grid(ggdraw() + draw_label("Stream", fontface='bold'),
+          p_stream, ncol = 1, rel_heights = c(0.1, 1))
+
+p_lake <- cowplot::plot_grid(
+  fviz_pca_var(pca_lake, axes = c(1, 2)),
+  fviz_pca_var(pca_lake, axes = c(2, 3)))
+plot_grid(ggdraw() + draw_label("Lake", fontface='bold'),
+          p_lake, ncol = 1, rel_heights = c(0.1, 1))
 ```
 
 
