@@ -40,7 +40,7 @@ pre { /* Code block - determines code spacing between lines */
 
 ```{r setup, include=FALSE}
 mypath <- rprojroot::find_package_root_file
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, dev = "svg")
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, dev = "svg")
 knitr::opts_knit$set(root.dir = mypath())
 ```
 
@@ -59,19 +59,20 @@ library(cowplot)
 source(mypath("R", "misc.R"))
 myload(env_stream, env_lake, dataset_lake_stream, dir = mypath("data"))
 ```
-# Summary  
-*Stream:  
-- Temperature and DBO both decrease disolved oxygen  
-- Nitrogen matters has a strong positive effect on DBO  
+# Summary
+*Stream:
+- Temperature and DBO both decrease disolved oxygen
+- Nitrogen matters has a strong positive effect on DBO
 
-*Lake:  
-- Only temperature decreases disolved oxygen but the effect is not significant  
-- Phosphore matters has a strong positive effect on DBO  
+*Lake:
+- Only temperature decreases disolved oxygen but the effect is not significant
+- Phosphore matters has a strong positive effect on DBO
 
 
-# SEM  
-- disolved oxygen ~ DBO + temperature  
-- DBO ~ nitrogen + phosphore + temperature  
+# SEM
+
+- disolved oxygen ~ DBO + temperature
+- DBO ~ nitrogen + phosphore + temperature
 
 
 ```{r}
@@ -79,13 +80,20 @@ env_stream <- env_stream %>% filter(opcod %in% (dataset_lake_stream %>% filter(t
 env_lake <- na.omit(env_lake)
 
 
-lm_list_stream <- list(lm(oxygen ~ dbo + temp, env_stream), lm(dbo ~ nitrogen + phosphore + temp, env_stream))
-lm_list_lake <- list(lm(oxygen ~ dbo + temp, env_lake), lm(dbo ~ nitrogen + phosphore + temp, env_lake))
+lm_list_stream <- list(
+  lm(oxygen ~ dbo + temp, env_stream),
+  lm(dbo ~ nitrogen + phosphore + temp, env_stream))
+lm_list_lake <- list(
+  lm(oxygen ~ dbo + temp, env_lake),
+  lm(dbo ~ nitrogen + phosphore + temp, env_lake)
+)
 
 sem_stream <- as.psem(lm_list_stream); sem_lake <- as.psem(lm_list_lake)
 summary(sem_stream); summary(sem_lake)
 plot(sem_stream, title = "SEM - Stream"); plot(sem_lake, title = "SEM - Lake")
 ```
+
+
 
 ```{r}
 #stream
@@ -122,8 +130,100 @@ plot_grid(ggdraw() + draw_label("Lake", fontface='bold'),
           p_lake, ncol = 1, rel_heights = c(0.1, 1))
 ```
 
+# Global SEM
+
+```{r gbl-sem}
+data_tot_sem <- dataset_lake_stream %>%
+  select(oxygen, dbo, temp, nitrogen, phosphore, type) %>%
+  na.omit()
+
+tot_lm <- list(
+  lm(oxygen ~ dbo + temp, data_tot_sem),
+  lm(dbo ~ nitrogen + phosphore + temp, data_tot_sem)
+)
+
+tot_sem <- as.psem(tot_lm)
+
+grp_sem <- multigroup(tot_sem, group = "type")
+grp_sem
+```
+
+- R-squared:
+
+```{r}
+rsquared(tot_sem)
+```
+
+- Multicollinearity:
+
+```{r}
+map(tot_lm, performance::check_collinearity)
+```
+
+- Number of observation by type of ecosystems:
+
+```{r}
+table(data_tot_sem$type)
+```
 
 
+Bootstraping does not work with `multigroup` SEMs!
+So, let's stick to the original P-values!
 
+```{r, eval = FALSE}
+library(semEff)
+tot_sem_boot <- semEff(tot_sem, R = 1000, seed = 13, parallel = "no", ci.type = "perc")
+summary(tot_sem_boot)
+```
+
+```{r, eval = FALSE}
+#summary(keeley.sem.eff, response = "rich")
+summary(tot_sem_eff, response = "rich")
+```
+
+```{r, eval = FALSE}
+summary(tot_sem_eff)
+semEff(sem_stream, R = 10, seed = 13, parallel = "no")
+```
+
+```{r, eval = FALSE}
+# 0.03 -> 2.07 mm
+# .03 -> .36
+
+# .36 -> .53
+# 2.07 -> 2.923 mm
+# 2.07 -> x
+size_sem_arrow <- function(
+  strength = .53
+  ) {
+  #.36 * 2.923 / 2.07
+  2.07 * strength / .36
+}
+size_sem_arrow(.82)
+```
+
+```{r, eval = FALSE}
+shuffle_sem <- function(d = data_tot_sem) {
+
+  bootstraped_data <- d[
+    sample(seq_len(nrow(d)), nrow(d), replace = TRUE),
+    ]
+
+  tot_sem <- psem(
+    lm(oxygen ~ dbo + temp, bootstraped_data),
+    lm(dbo ~ nitrogen + phosphore + temp, bootstraped_data)
+  )
+
+  grp_sem <- multigroup(tot_sem, group = "type")
+  grp_sem$anovaInts
+}
+
+shuffle_sem()
+bootstrap_sem <- function(rep = 10) {
+
+  map(1:rep, suffle_sem)
+}
+bootstrap_sem()
+```
 
 
