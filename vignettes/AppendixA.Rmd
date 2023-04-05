@@ -98,7 +98,7 @@ ggplot() +
 
 
 
-```{r figBODNutrients, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7, fig.align = 'center', fig.cap="Scatterplot matrix of BOD and nutrients for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable \\textit{TN} refers to total nitrogen and \\textit{TP} corresponds to total phosphorus. It should be noted that the samplings and the obtaining of the annual mean values for \\textit{TN} and \\textit{TP} follow the protocols and procedures of those of the \\textit{BOD}, respectively for lakes and streams."}
+```{r figBODNutrients, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7, fig.align = 'center', fig.cap="Scatterplot matrix of \\textit{BOD} and nutrients for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable \\textit{TN} refers to total nitrogen and \\textit{TP} corresponds to total phosphorus. It should be noted that the samplings and the obtaining of the annual mean values for \\textit{TN} and \\textit{TP} follow the protocols and procedures of those of the \\textit{BOD}, respectively for lakes and streams."}
 
 ggpairs(dataset_lake_stream, columns = c(5, 20:21), ggplot2::aes(colour = type),
         lower = list(continuous = wrap("smooth", alpha = 0.2)),
