@@ -1,5 +1,5 @@
 ---
-title: "Supporting Information"
+title: "**Appendix A**"
 author: ""
 date: ""
 output:
@@ -70,7 +70,7 @@ BassinHydrographique <- st_intersection(st_as_sf(BassinHydrographique), st_as_sf
 
 ```
 
-```{r figMapSamplingSites, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7, fig.cap="Metropolitan France map showing the geographical distribution of the 629 sites, where taxonomic and environmental data have been collected. Green points represent sampled lakes (n = 256), purple points represent sampled streams (n = 373) and grey borders into France represent the 7 hydrographic basins."}
+```{r figMapSamplingSites, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7, fig.align = 'center', fig.cap="Metropolitan France map showing the geographical distribution of the 629 sites, where taxonomic and environmental data have been collected. Green points represent sampled lakes (n = 256), purple points represent sampled streams (n = 373) and grey borders into France represent the 7 hydrographic basins."}
 
 ggplot() +
   geom_sf(data = world_joined, fill = "white", color = "black", size = 0.05) +
@@ -98,7 +98,7 @@ ggplot() +
 
 
 
-```{r figBODNutrients, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7, fig.cap="Scatterplot matrix of BOD and nutrients for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable *TN* refers to total nitrogen and *TP* corresponds to total phosphorus"}
+```{r figBODNutrients, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7, fig.align = 'center', fig.cap="Scatterplot matrix of \\textit{BOD} and nutrients for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable \\textit{TN} refers to total nitrogen and \\textit{TP} corresponds to total phosphorus. It should be noted that the samplings and the obtaining of the annual mean values for \\textit{TN} and \\textit{TP} follow the protocols and procedures of those of the \\textit{BOD}, respectively for lakes and streams."}
 
 ggpairs(dataset_lake_stream, columns = c(5, 20:21), ggplot2::aes(colour = type),
         lower = list(continuous = wrap("smooth", alpha = 0.2)),
@@ -116,7 +116,7 @@ ggpairs(dataset_lake_stream, columns = c(5, 20:21), ggplot2::aes(colour = type),
 
 
 
-```{r figFWEnvproperties, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 10, fig.cap="Scatterplot matrix of food-web and environmental properties for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable *Rich.* refers to the trophic species richness, *Connect.* corresponds to the connectance, *Max. troph. level* corresponds to the maximum trophic level, and *Temp.* refer to the temperature."}
+```{r figFWEnvproperties, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 10, fig.align = 'center', fig.cap="Scatterplot matrix of food-web and environmental properties for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable \\textit{Rich.} refers to the trophic species richness, \\textit{Connect.} corresponds to the connectance, \\textit{Max. troph. level} corresponds to the maximum trophic level, and \\textit{Temp.} refer to the temperature."}
 
 ggpairs(dataset_lake_stream, columns = c(8, 9, 7 , 11, 6, 5), ggplot2::aes(colour = type),
         lower = list(continuous = wrap("smooth", alpha = 0.2)),
@@ -131,13 +131,16 @@ ggpairs(dataset_lake_stream, columns = c(8, 9, 7 , 11, 6, 5), ggplot2::aes(colou
         strip.text.y = element_text(size = 12, face = "bold"))
 ```
 
+
+
+
 ```{r}
 get_term_replacement <- function() {
   c(
-    oxygen = "Oxygen",
+    oxygen = "Dissolved Oxygen",
     dbo = "BOD",
-    nitrogen = "Nitrogen",
-    phosphore = "Phosphore",
+    nitrogen = "Total Nitrogen",
+    phosphore = "Total Phosphorus",
     temp = "Temperature",
     type = "Ecosystem"
   )
@@ -157,7 +160,7 @@ tot_lm <- list(
 
 tot_sem <- as.psem(tot_lm)
 
-grp_sem <- multigroup(tot_sem, group = "type")
+#grp_sem <- multigroup(tot_sem, group = "type")
 ```
 
 ```{r}
@@ -167,6 +170,11 @@ rsq <- rsquared(tot_sem) %>%
     Response = get_term_replacement()[Response],
     `R squared` = round(`R squared`, 3)
   )
+```
+
+```{r sem, fig.show="hold", out.width="40%", fig.cap = "Structural Equation Model linking total nitrogen, total phosphorus loads and temperature to BOD, and BOD and temperature to dissolved oxygen concentation in lakes (left panel) and streams (right panel). Negative and positive relationships are respectively displayed with dashed and solid arrows, the width of the arrows being proportional to the values of the standardized coefficients. Gray arrows display non-significant relationships. Standardized coefficients are displayed along the arrows. We observe that enrichement, linked to BOD, is driven by total phosphorus and temperature in lakes while it is driven by total nitrogen and temperature in streams. Temperature drives lower dissolved oxygen concentration both in lakes and streams but enrichnment (BOD) drives lower dissolved oxygen concentration only in streams."}
+knitr::include_graphics(here::here("figs", "sem_lake.png"))
+knitr::include_graphics(here::here("figs", "sem_stream.png"))
 ```
 
 ```{r}
@@ -186,9 +194,4 @@ ti %>%
     caption = "R2, Variance Inflation Factor (VIF), Standard Error inflation factors for the Structural Equation Model (SEM) explaining dissolved oxygen concentration. VIF values and SE factors are very close to one, indication that the SEM displays low multicollinearity.") %>%
   collapse_rows(columns = c(1, 2), latex_hline = "major", valign = "middle") %>%
   kable_styling(latex_options = c("striped", "hold_position"))
-```
-
-```{r sem, fig.show="hold", out.width="40%", fig.cap = "Structural Equation Model linking Nitrogen, Phosphore loads and temperature to BOD, and BOD and temperature to dissolved oxygen concentation in lakes (left panel) and streams (right panel). Negative and positive relationships are respectively displayed with dashed and solid arrows, the width of the arrows being proportional to the values of the standardized coefficients. Gray arrows display non-significant relationships. Standardized coefficients are displayed along the arrows. We observe that enrichement, linked to BOD, is driven by Phosphorus and temparuture in Lake while it is driven by Nitrogen and temperature in streams. Tempeture drives lower dissolved oxygen concentration both in lakes and streams but enrichnment (BOD) drives lower dissolved oxygen concentration only in streams."}
-knitr::include_graphics(here::here("figs", "sem_lake.png"))
-knitr::include_graphics(here::here("figs", "sem_stream.png"))
 ```
