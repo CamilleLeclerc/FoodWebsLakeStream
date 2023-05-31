@@ -1,20 +1,35 @@
 ---
 title: "**Appendix A**"
-author: ""
-date: ""
+subtitle: "*No positive interactions between warming and enrichment on food-web structure in natural freshwater systems*"
+author: |
+  | Alain Danet, Arnaud Sentis, Camille Leclerc, Eric Edeline, 
+  | Victor Frossard and Willem Bonnaffé
+date:  \today
 output:
-  pdf_document:
-    fig_caption: yes
+  bookdown::pdf_document2:
+    fig_caption: true 
+    keep_tex: true
+    toc: true
+fontsize: 12pt
 header-includes:
-  - \usepackage{caption}
-  - \DeclareCaptionLabelFormat{nospace}{#1#2}
-  - \captionsetup[figure]{labelformat=nospace}
-  - \captionsetup[table]{labelformat=nospace}
-  - \usepackage[labelfont={bf}]{caption}
+   - \usepackage{natbib}
+   - \usepackage{float}
+   - \usepackage{multirow}
+   - \usepackage{booktabs}
+   - \usepackage{makecell}
+   - \usepackage{setspace}
+   - \doublespacing
+   - \usepackage{lineno}
+   - \usepackage{caption}
+   - \DeclareCaptionLabelFormat{nospace}{#1#2}
+   - \captionsetup[figure]{labelformat=nospace}
+   - \captionsetup[table]{labelformat=nospace}
+   - \usepackage[labelfont={bf}]{caption}
+bibliography: "../doc/references_appendixA.bib"
+csl: "../doc/ecologyletters.csl"
 label:
     fig: "**Figure S**"
     tab: "**Table S**"
-
 ---
 
 ```{r setup, include = FALSE}
@@ -49,7 +64,11 @@ dataset_lake_stream$type[dataset_lake_stream$type == 'lake'] <- 'Lake'
 \def\figurename{Figure S}
 \def\tablename{Table S}
 
-
+\newpage
+# Community data
+Fish communities in lakes were sampled using stratified random sampling design with multimesh gillnets [@Appelberg1995; @cen14757]. Sampling was conducted in late summer and early autumn, when most fishes are active but not spawning [@Prchalova2010]. The pre-defined number of nets per lake depended on area and depth of the lake [@Appelberg1995]. Specifically, benthic multimesh gillnets (12 panels of 5 to 55 mm knot-to-knot; 30 m long and 1.5 m high) were set in the benthic habitat, and for deep lakes (>10 m), sampling is completed using pelagic multimesh gillnets (11 panels of 6.5 to 55 mm knot-to-knot; 27.5 m long and 6 m high), which were lowered from the surface to 6 m each day. A total of 256 lakes were sampled at least once during the study period (Fig. S1).  
+Fish communities in streams were sampled using a standardized electrofishing protocol based on stream size [@cen14011; @Irz2022]. Sampling was conducted from late spring through early autumn during the low flow period. Because the purpose of electrofishing is to obtain a sufficiently representative sample of the populations or communities present in the surveyed stations to allow comparative temporal and spatial analysis, we selected multi-species samplings of small streams and of deeper and/or wider streams. Small streams (depth <0.7m across the entire stream width) were sampled using anodes distributed evenly across the entire stream width, while larger streams were sampled along the bank either on foot or by boat (for more details see [@Danet2021; @Irz2022]). We selected sites for which protocol methods did not change across years, resulting in a total number of 373 stream sites sampled at least once during the study period (Fig. S1). 
+\newline 
 ```{r scriptMapSamplingSites, include = FALSE , echo = FALSE, message = FALSE, warning = FALSE}
 
 worldmap <- ne_countries(continent = 'europe', scale = 'large', type = 'countries', returnclass = 'sf')
@@ -77,31 +96,36 @@ ggplot() +
   geom_sf(data = BassinHydrographique, fill = "#f0f0f0", color = "#bdbdbd", size = 0.25) +
   geom_sf(data = francelakes, col = '#6baed6', fill = '#6baed6', size = 0.05) +
   geom_sf(data = francemap, fill = alpha("white", 0), color = "black", size = 0.6) +
-  annotation_scale(location = "bl", width_hint = 0.1) +
-  annotation_north_arrow(which_north = "true", location = "tr", height = unit(0.5, "cm"), width = unit(0.5, "cm"), style = north_arrow_orienteering(fill = c("black", "black"), text_size = 6)) +
+  annotation_scale(location = "bl", width_hint = 0.1, text_cex = 1.2) +
+  annotation_north_arrow(which_north = "true", location = "tr", pad_x = unit(0.0, "in"), pad_y = unit(0.2, "in"),
+        style = north_arrow_fancy_orienteering) +
   geom_point(data = dataset_lake_stream,
-             aes(x = long, y = lat, fill = type), shape = 21, colour = "#000000", size = 2) +
+             aes(x = long, y = lat, fill = type), shape = 21, colour = "#000000", size = 3) +
   scale_fill_manual(values = c("#8da0cb", "#66c2a5"), name = "Communities samples") +
   coord_sf(xlim = c(-5, 9.75), ylim = c(41.3, 51.5), expand = FALSE) +
   theme(title = element_text(),
-        plot.title = element_text(margin = margin(20,20,20,20), size = 18, hjust = 0.5),
+        legend.position = c(0.75, 0.08), legend.background = element_blank(), legend.key = element_blank(),
+        legend.title = element_text(size = 15, face = "bold"),
+        legend.text = element_text(size = 14),
         axis.text.x = element_blank(), axis.text.y = element_blank(),
         axis.ticks = element_blank(),
         axis.title.x = element_blank(),  axis.title.y = element_blank(),
         panel.grid.major = element_blank(), panel.background = element_blank(),
         strip.background = element_rect(fill = "#000000", color = "#000000", size = 1, linetype = "solid"),
-        strip.text.x = element_text(size = 12, color = "#ffffff", face = "bold"),
-        panel.border = element_rect(colour = "#000000", fill = NA, size = 1)) +
-  theme(legend.position = c(0.15, 0.10), legend.background = element_blank(), legend.key = element_blank())
+        panel.border = element_rect(colour = "#000000", fill = NA, size = 1))
 
 ```
 
 
+\newpage
+# Environmental variables
+Organic enrichment often results from inorganic nutrient enrichment, which can lead to eutrophication [@Fitch2012; @OGorman2012]. We therefore examined the relationship between BOD and nutrients (i.e. total phosphorus and total nitrogen). Sampling and calculation of mean annual total phosphorus and total nitrogen followed the protocols and procedures of BOD for lakes and streams, respectively.  
+Overall, significant positive correlations were found between BOD and total phosphorus or total nitrogen in both streams and lakes. In particular, we found a stronger relationship between BOD and total phosphorus in lakes (Pearson’s r = 0.852) than in streams (Pearson’s r = 0.355). As for the relationship between BOD and total nitrogen, the correlation was stronger in streams (Pearson’s r = 0.505) than in lakes (Pearson’s r = 0.337).
 
-```{r figBODNutrients, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7, fig.align = 'center', fig.cap="Scatterplot matrix of \\textit{BOD} and nutrients for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable \\textit{TN} refers to total nitrogen and \\textit{TP} corresponds to total phosphorus. It should be noted that the samplings and the obtaining of the annual mean values for \\textit{TN} and \\textit{TP} follow the protocols and procedures of those of the \\textit{BOD}, respectively for lakes and streams."}
+```{r figBODNutrients, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 7, fig.align = 'center', fig.cap="Scatterplot matrix of \\textit{BOD} and nutrients for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable \\textit{TN} refers to total nitrogen and \\textit{TP} corresponds to total phosphorus."}
 
 ggpairs(dataset_lake_stream, columns = c(5, 20:21), ggplot2::aes(colour = type),
-        lower = list(continuous = wrap("smooth", alpha = 0.2)),
+        lower = list(continuous = wrap("smooth", alpha = 0.2)), upper = list(continuous = wrap("cor", size = 6)),
         columnLabels = c("BOD (mg/L)", "TN (mg/L)", "TP (mg/L)")) +
   scale_colour_manual(values = c("#8da0cb", "#66c2a5")) +
   scale_fill_manual(values = c("#8da0cb", "#66c2a5")) +
@@ -114,19 +138,72 @@ ggpairs(dataset_lake_stream, columns = c(5, 20:21), ggplot2::aes(colour = type),
 
 ```
 
-
-
-```{r figFWEnvproperties, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 10, fig.align = 'center', fig.cap="Scatterplot matrix of food-web and environmental properties for the sampled lakes (in purple) and streams (in green). Scatterplots of each pair of numeric variable are drawn on the left part of the figure. Pearson correlation is displayed on the right. Variable distribution is available on the diagonal. The variable \\textit{Rich.} refers to the trophic species richness, \\textit{Connect.} corresponds to the connectance, \\textit{Max. troph. level} corresponds to the maximum trophic level, and \\textit{Temp.} refer to the temperature."}
-
-ggpairs(dataset_lake_stream, columns = c(8, 9, 7 , 11, 6, 5), ggplot2::aes(colour = type),
-        lower = list(continuous = wrap("smooth", alpha = 0.2)),
-        columnLabels = c("Rich.", "Nodes", "Connect.", "Max. troph. level", "Temp. (°C)", "DBO (mg/L)")) +
-  scale_colour_manual(values = c("#8da0cb", "#66c2a5")) +
-  scale_fill_manual(values = c("#8da0cb", "#66c2a5")) +
-  theme_bw() +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        legend.position = "bottom",
-        axis.text = element_text(size = 10, colour = "#000000"),
-        strip.text.x = element_text(size = 12, face = "bold"),
-        strip.text.y = element_text(size = 12, face = "bold"))
+\newpage
+Because oxygen is one of the potential mechanisms that play in natural settings than the ones included in theoretical models, we examined the relationships among nutrients (total nitrogen, total phosphorus), temperature, enrichment (BOD), and dissolved oxygen concentration. Using a Structural Equation Model, we modelled enrichment (BOD) as a function of nutrient concentration and water temperature, and dissolved oxygen as a function of enrichment (BOD) and water temperature. We also tested whether these relationships differed between lakes and streams. Note that sampling events with missing data for environmental variables (i.e. dissolved oxygen, BOD, nutrients, especially for lakes) are not included in the SEMs (n = 288). Because of this limited data set, we did not examine how oxygen affects food-web metrics. SEMs were computed with the PiecewiseSEM R package [@Lefcheck2016].  
+Overall, the Variance Inflation Factor values were around 1, indicating low multicollinearity in the model (Table S1). We found that temperature had a positive relationship with BOD in both freshwater systems (Standardized coefficients: $\beta$' = 0.14 and $\beta$' = 0.19 in lakes and streams, respectively, Fig. S3) and also had a negative relationship with dissolved oxygen ($\beta$' = -0.20 and $\beta$' = -0.41 for lakes and streams, respectively). BOD had a negative effect on dissolved oxygen only in streams ($\beta$' = 0.01 and $\beta$' = -0.34 for lakes and streams, respectively). Finally, we found that nutrient concentration had a positive relationship with BOD (Fig. S3). More specifically, total phosphorus had a strong positive effect on BOD in lakes ($\beta$' = 0.82), whereas total nitrogen had no effect ($\beta$' = 0.01). Conversely, total phosphorus had no effect on BOD ($\beta$' = 0.08), but total nitrogen had a strong positive effect ($\beta$' = 0.43, Fig. S3).  
+In summary, the enrichment, linked to BOD, is driven by total phosphorus concentration and temperature in lakes, whereas it is driven by total nitrogen concentration and temperature in streams. Temperature leads to lower dissolved oxygen concentration in both lakes and streams, while enrichment (BOD) leads to lower dissolved oxygen concentration only in streams.  
+\newline
+```{r}
+get_term_replacement <- function() {
+  c(
+    oxygen = "Dissolved oxygen",
+    dbo = "BOD",
+    nitrogen = "Total nitrogen",
+    phosphore = "Total phosphorus",
+    temp = "Temperature",
+    type = "Ecosystem"
+  )
+}
 ```
+
+
+```{r gbl-sem}
+data_tot_sem <- dataset_lake_stream %>%
+  select(oxygen, dbo, temp, nitrogen, phosphore, type) %>%
+  na.omit()
+
+tot_lm <- list(
+  oxygen = lm(oxygen ~ dbo + temp, data_tot_sem),
+  dbo = lm(dbo ~ nitrogen + phosphore + temp, data_tot_sem)
+)
+
+tot_sem <- as.psem(tot_lm)
+
+#grp_sem <- multigroup(tot_sem, group = "type")
+```
+
+```{r}
+rsq <- rsquared(tot_sem) %>%
+  select(Response, `R squared` = R.squared) %>%
+  mutate(
+    Response = get_term_replacement()[Response],
+    `R squared` = round(`R squared`, 3)
+  )
+```
+
+```{r sem, fig.show = "hold", out.width = "40%", fig.align = 'center', fig.cap = "Structural Equation Model linking total nitrogen concentration (mg/L), total phosphorus concentration (mg/L) and temperature to BOD, and BOD and temperature (°C) to dissolved oxygen concentation (mg/L) in lakes (left panel) and streams (right panel). Negative and positive relationships are respectively displayed with dashed and solid arrows, the width of the arrows being proportional to the values of the standardized coefficients. Gray arrows display non-significant relationships. Standardized coefficients are displayed along the arrows."}
+knitr::include_graphics(here::here("figs", "sem_lake.png"))
+knitr::include_graphics(here::here("figs", "sem_stream.png"))
+```
+
+```{r}
+ti <- map_dfr(tot_lm, performance::check_collinearity, .id = "Response") %>%
+  as_tibble() %>%
+  select(Response, Predictor = Term, VIF, `SE factor` = SE_factor) %>%
+  mutate(across(c(VIF, `SE factor`), ~round(.x, 3))) %>%
+  mutate(
+    Response = get_term_replacement()[Response],
+    Predictor = get_term_replacement()[Predictor]
+  )
+ti %>%
+  left_join(rsq) %>%
+  select(Response, `R squared`, Predictor, VIF, `SE factor`) %>%
+  kbl(booktabs = T,
+    label = "tab-sem-check",
+    caption = "R², Variance Inflation Factor (VIF), Standard Error inflation factors for the Structural Equation Model (SEM) explaining dissolved oxygen concentration. VIF values and SE factors are very close to one, indication that the SEM displays low multicollinearity.") %>%
+  collapse_rows(columns = c(1, 2), latex_hline = "major", valign = "middle") %>%
+  kable_styling(latex_options = c("striped", "hold_position"))
+```
+
+\newpage
+# References
