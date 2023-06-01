@@ -195,3 +195,13 @@ ti %>%
   collapse_rows(columns = c(1, 2), latex_hline = "major", valign = "middle") %>%
   kable_styling(latex_options = c("striped", "hold_position"))
 ```
+<<<<<<< HEAD
+=======
+
+```{r sem, fig.show="hold", out.width="40%", fig.cap = "Structural Equation Model linking Nitrogen, Phosphore loads and temperature to BOD, and BOD and temperature to dissolved oxygen concentation in lakes (left panel) and streams (right panel). Negative and positive relationships are respectively displayed with dashed and solid arrows, the width of the arrows being proportional to the values of the standardized coefficients. Gray arrows display non-significant relationships. Standardized coefficients are displayed along the arrows. We observe that enrichement, linked to BOD, is driven by Phosphorus and temparuture in Lake while it is driven by Nitrogen and temperature in streams. Tempeture drives lower dissolved oxygen concentration both in lakes and streams but enrichnment (BOD) drives lower dissolved oxygen concentration only in streams."}
+knitr::include_graphics(here::here("figs", "sem_lake.png"))
+knitr::include_graphics(here::here("figs", "sem_stream.png"))
+```
+
+
+>>>>>>> 1ad7753ab8b222fa7ccbf79e3e6f488305cae142
