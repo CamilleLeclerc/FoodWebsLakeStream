@@ -1,9 +1,9 @@
 ---
 title: "**Appendix A**"
-subtitle: "*No positive interactions between warming and enrichment on food-web structure in natural freshwater systems*"
+subtitle: "*Warming and enrichment interact to drive food-web simplification in freshwater systems*"
 author: |
-  | Alain Danet, Arnaud Sentis, Camille Leclerc, Eric Edeline, 
-  | Victor Frossard and Willem Bonnaffé
+  | Willem Bonnaffé, Alain Danet, Camille Leclerc, Victor Frossard, 
+  | Eric Edeline and Arnaud Sentis
 date:  \today
 output:
   bookdown::pdf_document2:
@@ -136,73 +136,6 @@ ggpairs(dataset_lake_stream, columns = c(5, 20:21), ggplot2::aes(colour = type),
         strip.text.x = element_text(size = 16, face = "bold"),
         strip.text.y = element_text(size = 16, face = "bold"))
 
-```
-
-\newpage
-Because oxygen is one of the potential mechanisms that play in natural settings than the ones included in theoretical models, we examined the relationships among nutrients (total nitrogen, total phosphorus), temperature, enrichment (BOD), and dissolved oxygen concentration. Using a Structural Equation Model, we modelled BOD as a function of nutrient concentration and water temperature, and dissolved oxygen as a function of BOD and water temperature. We also tested whether these relationships differed between lakes and streams. Note that sampling events with missing data for environmental variables (i.e. dissolved oxygen, BOD, nutrients, especially for lakes) are not included in the SEMs (n = 288). Because of this limited data set, we did not examine how oxygen affects food-web metrics. SEMs were computed with the PiecewiseSEM R package [@Lefcheck2016].  
-Overall, the Variance Inflation Factor values were around 1, indicating low multicollinearity in the model (Table S1). We found that temperature had a positive relationship with BOD in both freshwater systems (Standardized coefficients: $\beta$' = 0.14 and $\beta$' = 0.19 in lakes and streams, respectively, Fig. S3) and also had a negative relationship with dissolved oxygen ($\beta$' = -0.20 and $\beta$' = -0.41 for lakes and streams, respectively). BOD had a negative effect on dissolved oxygen only in streams ($\beta$' = 0.01 and $\beta$' = -0.34 for lakes and streams, respectively). Finally, we found that nutrient concentration had a positive relationship with BOD (Fig. S3). More specifically, total phosphorus had a strong positive effect on BOD in lakes ($\beta$' = 0.82), whereas total nitrogen had no effect ($\beta$' = 0.01). Conversely, total phosphorus had no effect on BOD ($\beta$' = 0.08), but total nitrogen had a strong positive effect ($\beta$' = 0.43, Fig. S3).  
-In summary, the enrichment, linked to BOD, is driven by total phosphorus concentration and temperature in lakes, whereas it is driven by total nitrogen concentration and temperature in streams. Temperature leads to lower dissolved oxygen concentration in both lakes and streams, while enrichment (BOD) leads to lower dissolved oxygen concentration only in streams.  
-\newline
-```{r}
-get_term_replacement <- function() {
-  c(
-    oxygen = "Dissolved oxygen",
-    dbo = "BOD",
-    nitrogen = "Total nitrogen",
-    phosphore = "Total phosphorus",
-    temp = "Temperature",
-    type = "Ecosystem"
-  )
-}
-```
-
-
-```{r gbl-sem}
-data_tot_sem <- dataset_lake_stream %>%
-  select(oxygen, dbo, temp, nitrogen, phosphore, type) %>%
-  na.omit()
-
-tot_lm <- list(
-  oxygen = lm(oxygen ~ dbo + temp, data_tot_sem),
-  dbo = lm(dbo ~ nitrogen + phosphore + temp, data_tot_sem)
-)
-
-tot_sem <- as.psem(tot_lm)
-
-#grp_sem <- multigroup(tot_sem, group = "type")
-```
-
-```{r}
-rsq <- rsquared(tot_sem) %>%
-  select(Response, `R squared` = R.squared) %>%
-  mutate(
-    Response = get_term_replacement()[Response],
-    `R squared` = round(`R squared`, 3)
-  )
-```
-
-```{r sem, fig.show = "hold", out.width = "40%", fig.align = 'center', fig.cap = "Structural Equation Model linking total nitrogen concentration (mg/L), total phosphorus concentration (mg/L) and temperature to BOD, and BOD and temperature (°C) to dissolved oxygen concentation (mg/L) in lakes (left panel) and streams (right panel). Negative and positive relationships are respectively displayed with dashed and solid arrows, the width of the arrows being proportional to the values of the standardized coefficients. Gray arrows display non-significant relationships. Standardized coefficients are displayed along the arrows."}
-knitr::include_graphics(here::here("figs", "sem_lake.png"))
-knitr::include_graphics(here::here("figs", "sem_stream.png"))
-```
-
-```{r}
-ti <- map_dfr(tot_lm, performance::check_collinearity, .id = "Response") %>%
-  as_tibble() %>%
-  select(Response, Predictor = Term, VIF, `SE factor` = SE_factor) %>%
-  mutate(across(c(VIF, `SE factor`), ~round(.x, 3))) %>%
-  mutate(
-    Response = get_term_replacement()[Response],
-    Predictor = get_term_replacement()[Predictor]
-  )
-ti %>%
-  left_join(rsq) %>%
-  select(Response, `R squared`, Predictor, VIF, `SE factor`) %>%
-  kbl(booktabs = T,
-    label = "tab-sem-check",
-    caption = "R², Variance Inflation Factor (VIF), Standard Error inflation factors for the Structural Equation Model (SEM) explaining dissolved oxygen concentration. VIF values and SE factors are very close to one, indication that the SEM displays low multicollinearity.") %>%
-  collapse_rows(columns = c(1, 2), latex_hline = "major", valign = "middle") %>%
-  kable_styling(latex_options = c("striped", "hold_position"))
 ```
 
 \newpage
