@@ -45,3 +45,17 @@ vignettes/metaweb_files
 data-raw/lake_temperature
 data-raw/lake_individual_size.txt
 
+
+# Not useful files
+00_get_stream_env_data.R
+starting.R
+vignettes/disolved_oxygen.Rmd
+vignettes/intro.html
+vignettes/intro.Rmd
+vignettes/metaweb.html
+vignettes/project_data_summary.html
+vignettes/project_data_summary.Rmd
+vignettes/statistical_analysis.Rmd
+vignettes/SupportingInformation.pdf
+vignettes/SupportingInformation.Rmd
+figs/Thumbs.db
