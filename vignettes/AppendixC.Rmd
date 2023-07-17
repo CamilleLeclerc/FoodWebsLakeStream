@@ -25,7 +25,7 @@ header-includes:
    - \captionsetup[figure]{labelformat=nospace}
    - \captionsetup[table]{labelformat=nospace}
    - \usepackage[labelfont={bf}]{caption}
-bibliography: "../doc/references_appendixA.bib"
+bibliography: "../doc/references_appendix.bib"
 csl: "../doc/ecologyletters.csl"
 label:
     fig: "**Figure S**"
