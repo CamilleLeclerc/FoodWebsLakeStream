@@ -8,7 +8,7 @@ This repository is structured as follow:
 │ &nbsp;  &nbsp;  &nbsp; ├── :file_folder: [**derived-data/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/data/derived-data) *(contains modified data derived from raw-data and follows the structure of **raw-data/**)*  
 │ &nbsp;  &nbsp;  &nbsp; └── :file_folder: [**raw-data/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/data/raw-data) *(read-only data, ordered by topic and should never be changed)*       
 ├── :file_folder: [**doc/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/doc) *(contains documents related to the project (e.g., pdf from an .Rmd file))*  
-├── :file_folder: [**outputs/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/figs) *(contains figures related to the project)*   
+├── :file_folder: [**figs/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/figs) *(contains figures related to the project)*   
 ├── :file_folder: [**outputs/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/outputs) *(contains all intermediate and final results sorted by topic)*   
 ├── :file_folder: [**R/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/R) *(contains the R functions developed for this project)*  
 └── :file_folder: [**vignettes/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/vignettes) *(contains Rmd files for running specific analysis)*  
