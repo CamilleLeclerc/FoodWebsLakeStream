@@ -8,60 +8,6 @@
 # Session Data files
 .RData
 
-# Large or undesirable files
-FRA_alt.grd
-FRA_alt.gri
-FRA_alt.vrt
-readme.txt
-srtm_36_03.hdr
-srtm_36_03.tfw
-srtm_36_03.tif
-srtm_36_04.hdr
-srtm_36_04.tfw
-srtm_36_04.tif
-srtm_37_02.hdr
-srtm_37_02.tfw
-srtm_37_02.tif
-srtm_37_03.hdr
-srtm_37_03.tfw
-srtm_37_03.tif
-srtm_37_04.hdr
-srtm_37_04.tfw
-srtm_37_04.tif
-srtm_38_03.hdr
-srtm_38_03.tfw
-srtm_38_03.tif
-srtm_38_04.hdr
-srtm_38_04.tfw
-srtm_38_04.tif
-data-raw/fish_data.csv
-data-raw/physico_chemistry_data.csv
-R/metaweb_build.R
-R/plot_code_webs.R
-R/local_network_build.R
-data-raw/physico_chemistry_data.csv
-vignettes/metaweb_cache
-vignettes/metaweb_files
-data-raw/lake_temperature
-data-raw/lake_individual_size.txt
-
-
 # Not useful files
 00_get_stream_env_data.R
 starting.R
-vignettes/disolved_oxygen.Rmd
-vignettes/intro.html
-vignettes/intro.Rmd
-vignettes/metaweb.html
-vignettes/project_data_summary.html
-vignettes/project_data_summary.Rmd
-vignettes/statistical_analysis.Rmd
-vignettes/SupportingInformation.pdf
-vignettes/SupportingInformation.Rmd
-figs/Thumbs.db
-doc/OntogeneticShift_and_FeedingHabits
-doc/Description_lake_individual_size_files_columns.pdf
-doc/Fish_size_distribution_and_piscivory.docx
-doc/food web.bib
-doc/network.bib
-doc/references.bib
