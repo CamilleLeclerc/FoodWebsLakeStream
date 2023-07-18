@@ -37,13 +37,7 @@ calc_fish_body_mass <- function (length = NULL, unit = "gram") {
   return(weight)
 
 }
-```
 
-
-# Streams
-
-```{r}
-myload(ind_size_stream, op_analysis, dir = mypath("data/raw-data"))
 
 wl <- read_delim(mypath("data/raw-data", "weight_length_coef.csv"),
   delim = ";",
@@ -55,27 +49,33 @@ wl %<>%
   rename(species = species_code)
 ```
 
+
+# Streams
 ```{r compute biomass}
+myload(ind_size_stream, op_analysis, dir = mypath("data/raw-data"))
 weight_fish_stream <- ind_size_stream %>%
   mutate(weight = calc_fish_body_mass(length)) %>%
   dplyr::select(opcod, species, length, weight)
 # length is given in milimeters
+```
 
 # Lake
+```{r compute biomass}
 code_species_river_lake <- read.delim(paste0(mypath("data/raw-data"), "/code_species_river_lake.txt"))
 code_species_lake <- code_species_river_lake %>% select(sp_code, sp_lake) %>% drop_na(.)  
 code_species_lake$sp_lake <- gsub(" ", "_", code_species_lake$sp_lake)
 colnames(code_species_lake)[2] <- "species"
-myload(ind_size, dir = mypath("data/raw-data"))
-ind_size <- left_join(ind_size, code_species_lake, by = "species")
-ind_size <- ind_size %>% select(id_campagne, sp_code, fish)
-colnames(ind_size)[2] <- "species"
-weight_fish_lake <- ind_size %>%
+myload(ind_size_lake, sampling_protocol, dir = mypath("data/raw-data"))
+ind_size_lake <- left_join(ind_size_lake, code_species_lake, by = "species")
+ind_size_lake <- ind_size_lake %>% select(id_campagne, sp_code, fish)
+colnames(ind_size_lake)[2] <- "species"
+weight_fish_lake <- ind_size_lake %>%
   mutate(weight = calc_fish_body_mass(fish))
 
-mysave(weight_fish_stream, weight_fish_lake,
-  dir = mypath("data"), overwrite = TRUE)
+mysave(weight_fish_stream, weight_fish_lake, dir = mypath("data/derived-data"), overwrite = TRUE)
 ```
+
+
 
 ```{r get biomass by species}
 op_analysis %<>%
@@ -111,7 +111,6 @@ com_stream %<>% filter( !is.nan(length))
 community_stream <- com_stream
 
 # Lake
-myload(sampling_protocol, dir = mypath("data"))
 community_lake <- weight_fish_lake %>%
   group_by(id_campagne, species) %>%
   summarise(
@@ -120,8 +119,7 @@ community_lake <- weight_fish_lake %>%
     nind = n()
   )
 
-mysave(community_stream, community_lake,
-  dir = mypath("data"), overwrite = TRUE)
+mysave(community_stream, community_lake, dir = mypath("data/derived-data"), overwrite = TRUE)
 ```
 
 ```{r richness}
@@ -172,8 +170,7 @@ species_vector <- community_stream %>%
       })
   )
 
-community_stream_metrics <- left_join(com,
-  species_vector, by = "opcod")
+community_stream_metrics <- left_join(com, species_vector, by = "opcod")
 
 # Lake
 species_vector_lake <-
@@ -196,11 +193,9 @@ species_vector_lake <-
       })
   )
 
-community_lake_metrics <- community_lake %>%
-  left_join(species_vector_lake, by = "id_campagne")
+community_lake_metrics <- community_lake %>% left_join(species_vector_lake, by = "id_campagne")
 
-mysave(community_stream_metrics, community_lake_metrics,
-  dir = mypath("data"), overwrite = TRUE)
+mysave(community_stream_metrics, community_lake_metrics, dir = mypath("data"), overwrite = TRUE)
 ```
 
 
