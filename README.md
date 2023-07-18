@@ -3,7 +3,7 @@
 ## Repository overview
 This repository is structured as follow:
 
-:file_folder: [**rivage/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake) *(root of the compendium)*  
+:file_folder: [**FoodWebsRiverLake/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake) *(root of the compendium)*  
 ├── :file_folder: [**data/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/data) *(contains data, arranged by type: raw and derived)*  
 │ &nbsp;  &nbsp;  &nbsp; ├── :file_folder: [**derived-data/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/data/derived-data) *(contains modified data derived from raw-data and follows the structure of **raw-data/**)*  
 │ &nbsp;  &nbsp;  &nbsp; └── :file_folder: [**raw-data/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/data/raw-data) *(read-only data, ordered by topic and should never be changed)*       
