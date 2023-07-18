@@ -55,7 +55,7 @@ options(kableExtra.latex.load_packages = TRUE)
 mypath <- rprojroot::find_package_root_file
 source(mypath("R", "misc.R"))
 
-myload(env_stream, env_lake, dataset_lake_stream, dir = mypath("data"))
+myload(dataset_lake_stream, dir = mypath("outputs"))
 dataset_lake_stream$type[dataset_lake_stream$type == 'stream'] <- 'Stream'
 dataset_lake_stream$type[dataset_lake_stream$type == 'lake'] <- 'Lake'
 ```
@@ -75,14 +75,14 @@ worldmap <- ne_countries(continent = 'europe', scale = 'large', type = 'countrie
 fr <- data.frame(Country = "France", Focus = "YES")
 world_joined <- left_join(worldmap, fr, by = c("name" = "Country"))
 francemap <- ne_countries(country = 'france', scale = 'large', type = 'countries', returnclass = 'sf')
-lakes <- readOGR(mypath("data-raw/ne_10m_lakes"), layer="ne_10m_lakes")
+lakes <- readOGR(mypath("data/raw-data/ne_10m_lakes"), layer="ne_10m_lakes")
 lakes <- st_as_sf(lakes)
-rivers <- readOGR(mypath("data-raw/ne_10m_rivers_lake_centerlines"), layer="ne_10m_rivers_lake_centerlines")
+rivers <- readOGR(mypath("data/raw-data/ne_10m_rivers_lake_centerlines"), layer="ne_10m_rivers_lake_centerlines")
 rivers <- st_as_sf(rivers)
 sf::sf_use_s2(FALSE)
 francelakes <- st_intersection(st_as_sf(lakes), st_as_sf(francemap))
 francerivers <- st_intersection(st_as_sf(rivers), st_as_sf(francemap))
-BassinHydrographique <- readOGR(mypath("data-raw/BassinsHydrographiques_Métropole2019_BDTopage"), layer="BassinHydrographique")
+BassinHydrographique <- readOGR(mypath("data/raw-data/BassinsHydrographiques_Métropole2019_BDTopage"), layer="BassinHydrographique")
 BassinHydrographique <- st_as_sf(BassinHydrographique)
 BassinHydrographique <- st_transform(BassinHydrographique, crs = st_crs(francemap))
 BassinHydrographique <- st_intersection(st_as_sf(BassinHydrographique), st_as_sf(francemap))

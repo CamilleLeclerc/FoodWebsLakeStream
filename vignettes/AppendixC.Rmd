@@ -55,7 +55,7 @@ options(kableExtra.latex.load_packages = TRUE)
 mypath <- rprojroot::find_package_root_file
 source(mypath("R", "misc.R"))
 
-myload(env_stream, env_lake, dataset_lake_stream, dir = mypath("data"))
+myload(dataset_lake_stream, dir = mypath("outputs"))
 dataset_lake_stream$type[dataset_lake_stream$type == 'stream'] <- 'Stream'
 dataset_lake_stream$type[dataset_lake_stream$type == 'lake'] <- 'Lake'
 ```
