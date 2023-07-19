@@ -3,6 +3,8 @@ BassinVersantTopographique_Métropole2019_BDTopage
 lake_individual_size
 lake_temperature
 diet_shift.rda
+environment/daily_avg_temp_lake.rda
+environment/monthly_avg_dbo5_lake.rda
 fish_data.csv
 fish_diet_shift_missing_lake_species.txt
 fish_fish_predation_window.csv
