@@ -1,5 +1,4 @@
 # Large or not useful files
-BassinVersantTopographique_Métropole2019_BDTopage
 lake_individual_size
 lake_temperature
 diet_shift.rda
@@ -14,7 +13,6 @@ ind_size.rda
 ind_size_lake_stream.rda
 lake_dataset.txt
 lake_individual_size.txt
-lake_list.txt
 lake_number_gillnets_benthic.txt
 lake_number_gillnets_pelagic.txt
 length_analysis.rda
@@ -23,9 +21,7 @@ ontogenic_diet_shift_resource.csv
 physico_chemistry_data.csv
 plando_fish_list.csv
 plando_sampling_year.csv
-plando_spatial_coordinates.csv
 pred_win_missing_lake_species.txt
 region_polygon.rda
 species.rda
 station.rda
-station_analysis.rda
