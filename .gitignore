@@ -8,6 +8,7 @@
 # Session Data files
 .RData
 
-# Not useful files
+# Not useful files/folders
 00_get_stream_env_data.R
 starting.R
+rscripts
