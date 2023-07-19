@@ -1,5 +1,6 @@
 # FoodWebsRiverLake
 📦 Data and R code used in Bonnaffé *et al.* (in prep) to explore the individual and interactive effects of enrichment and temperature on food-web structure in lakes and rivers.
+<br />
 
 ## Repository overview
 This repository is structured as follow:
@@ -14,7 +15,6 @@ This repository is structured as follow:
 ├── :file_folder: [**R/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/R) *(contains the R functions developed for this project)*  
 └── :file_folder: [**vignettes/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/vignettes) *(contains Rmd files for running specific analysis)*  
 <br />
-<br />
 
 ## Running instructions
 **Used softwares:**  
@@ -28,10 +28,8 @@ This repository is structured as follow:
 * Install (if necessary) and load all required packages
 * Load all required functions
 <br />
-<br />
 
 ## Additional resources
 * Bonnaffé, W., Danet, A., Legendre, S. & Edeline, E. (2021). Comparison of size-structured and species-level trophic networks reveals antagonistic effects of temperature on vertical trophic diversity at the population and species level. *Oikos*, 130, 1297–1309. [https://doi.org/10.1111/oik.08173](https://doi.org/10.1111/oik.08173)
 * Danet, A., Mouchet, M., Bonnaffé, W., Thébault, E. & Fontaine, C. (2021). Species richness and food-web structure jointly drive community biomass and its temporal stability in fish communities. *Ecol. Lett.*, 24, 2364–2377. [https://doi.org/10.1111/ele.13857](https://doi.org/10.1111/ele.13857)
 * [SizeTrophicInteractions](https://github.com/alaindanet/SizeTrophicInteractions) to compile and estimate (if necessary) of the individual body size of the fish.
-
