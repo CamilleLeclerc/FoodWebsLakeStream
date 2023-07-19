@@ -1,0 +1,243 @@
+---
+title: Compile dataset "dataset_lake_stream.rda"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE
+)
+```
+
+```{r setup}
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(ggspatial)
+library(kableExtra)
+library(knitr)
+library(magrittr)
+library(maptools)
+library(PerformanceAnalytics)
+library(raster)
+library(rgdal)
+library(rgeos)
+library(rnaturalearth)
+library(rstatix)
+library(sf)
+library(tidyverse)
+
+mypath <- rprojroot::find_package_root_file
+source(mypath("R", "misc.R"))
+```
+
+# EXTRACT AND COMPILE DATA (i.e. NETWORK METRICS, TEMPERATURE AND BOD) RELATED TO LAKES 
+```{r extract and compile networks metrics, temperature and dbo data of lakes}
+myload(yearly_avg_dbo5_lake, yearly_avg_temp_lake, dir = mypath("data/raw-data/environment"))    
+myload(network_lake_metrics, dir = mypath("data/derived-data"))
+plando_spatial_coordinates <- read_csv("../data/raw-data/plando_spatial_coordinates.csv")
+colnames(plando_spatial_coordinates)[1] <- "code_lac"
+lake_analysis <- read.csv("../data/raw-data/lake_list.txt", sep = "")
+lake_analysis$station_date <- paste(lake_analysis$code_lac, lake_analysis$camp_annee, sep = "_")
+  
+
+dbo_lake <- yearly_avg_dbo5_lake
+dbo_lake$station_date <- paste(dbo_lake$code_lac, dbo_lake$year, sep = "_")
+yearly_avg_temp_lake$Lake_ID[yearly_avg_temp_lake$Lake_ID == "LER27"] <- "LER27a"
+temp_lake <- yearly_avg_temp_lake
+temp_lake$station_date <- paste(temp_lake$Lake_ID, temp_lake$year, sep = "_")
+  
+env_lake <- left_join(lake_analysis, dbo_lake %>% dplyr::select(raw_value, station_date), by = "station_date")
+colnames(env_lake)[5] <- "dbo" 
+env_lake <- left_join(env_lake, temp_lake %>% dplyr::select(raw_value, station_date), by = "station_date")
+colnames(env_lake)[6] <- "temp"
+env_lake <- env_lake %>% drop_na(temp)
+sort(unique(env_lake$camp_annee))
+env_lake <- env_lake %>% dplyr:: filter(camp_annee < 2018)
+length(unique(env_lake$code_lac)) ; length(unique(env_lake$id_campagne))
+  
+  
+length(unique(env_lake$id_campagne)) ; length(unique(network_lake_metrics$id_campagne))
+network_lake_metrics$richness <- NA
+for(i in 1: nrow(network_lake_metrics)){
+  data <- network_lake_metrics[[6]][[i]]
+  data <- data %>% filter(species_name != "biof" & species_name != "det" & species_name != "macroph" & species_name != "phytob" & species_name != "phytopl" & species_name != "zoob" & species_name != "zoopl")
+  data$species_name <- substr(data$species_name, 1, 3)
+  network_lake_metrics$richness[i] <- length(unique(data$species_name))
+  rm(data)
+  }
+rm(i)
+metric_lake <- network_lake_metrics %>% dplyr::select(connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl)
+  
+  
+data_lake <- left_join(env_lake, metric_lake, by = "id_campagne")
+data_lake <- data_lake[!(data_lake$code_lac == "ANN74" & data_lake$camp_annee == 2012),]
+data_lake <- data_lake[!(data_lake$code_lac == "LEM74" & data_lake$camp_annee == 2015),]
+data_lake <- left_join(data_lake, plando_spatial_coordinates, by = "code_lac")
+data_lake$type <- "lake"
+data_lake <- data_lake %>% dplyr::select(type, code_lac, id_campagne, camp_annee, dbo, temp, connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl, lat_plando, long_plando)
+colnames(data_lake) <- c("type", "station", "opcod", "year", "dbo", "temp", "connectance", "richness", "nbnode", "w_trph_lvl_avg", "max_troph_lvl", "lat", "long")
+  
+
+plando_spatial_coordinates <- unique(data_lake %>% dplyr::select(lat, long, type))
+
+
+rm(dbo_lake, yearly_avg_dbo5_lake, temp_lake, yearly_avg_temp_lake)
+```  
+ 
+# EXTRACT AND COMPILE DATA (i.e. NETWORK METRICS, TEMPERATURE AND BOD) RELATED TO RIVERS  
+```{r extract and compile networks, temperature and dbo data of rivers} 
+myload(op_analysis, station_analysis, dir = mypath("data/raw-data"))
+myload(yearly_avg_water_chemical_stream, yearly_avg_water_temperature_stream, dir = mypath("data/raw-data/environment"))    
+myload(network_stream_metrics, dir = mypath("data/derived-data"))
+  
+  
+op_analysis <- op_analysis[which(op_analysis$date > "2004-12-31"),]
+op_analysis <- op_analysis[which(op_analysis$date < "2019-01-01"),]
+op_analysis$station_date <- paste(op_analysis$station, op_analysis$year, sep = "_")
+  
+  
+dbo_stream <- yearly_avg_water_chemical_stream %>% dplyr::filter(category == "DBO")
+dbo_stream$station_date <- paste(dbo_stream$id, dbo_stream$year, sep = "_")
+temp_stream <- yearly_avg_water_temperature_stream %>%
+                  group_by(id, year) %>%
+                  slice(which.min(value.predSE))
+temp_stream$station_date <- paste( temp_stream$id,  temp_stream$year, sep = "_")
+  
+  
+env_stream <- left_join(op_analysis %>% as.data.frame(.) %>% dplyr::select(opcod, station, year, station_date), dbo_stream %>% as.data.frame(.) %>% dplyr::select(press, station_date), by = "station_date")
+env_stream <- left_join(env_stream, temp_stream %>% as.data.frame(.) %>% dplyr::select(value_corrected, station_date), by = "station_date")
+colnames(env_stream)[5] <- "dbo" ; colnames(env_stream)[6] <- "temp"
+env_stream <- env_stream %>% drop_na(dbo) %>% drop_na(temp)
+sort(unique(env_stream$year))
+length(unique(env_stream$station)) ; length(unique(env_stream$opcod))
+  
+  
+length(unique(env_stream$opcod)) ; length(unique(network_stream_metrics$opcod))
+network_stream_metrics <- network_stream_metrics %>% dplyr::filter(opcod %in% env_stream$opcod)
+length(unique(env_stream$opcod)) ; length(unique(network_stream_metrics$opcod))
+env_stream <- env_stream %>% dplyr::filter(opcod %in% network_stream_metrics$opcod)
+length(unique(env_stream$opcod)) ; length(unique(network_stream_metrics$opcod))
+  
+network_stream_metrics$richness <- NA
+for(i in 1: nrow(network_stream_metrics)){
+    data <- network_stream_metrics[[2]][[i]]
+    network_stream_metrics$richness[i] <- length(unique(data$species))
+    rm(data)
+  }
+rm(i)
+metric_stream <- network_stream_metrics %>% dplyr::select(connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl)
+
+  
+  stream_spatial_coordinates <- station_analysis %>%
+    mutate(lat = unlist(map(station_analysis$geometry, 2)),
+           long = unlist(map(station_analysis$geometry, 1)))
+  stream_spatial_coordinates <- as.data.frame(stream_spatial_coordinates)
+  colnames(stream_spatial_coordinates)[1] <- "station"
+  
+  
+  data_stream <- left_join(env_stream, metric_stream, by = "opcod")
+  data_stream <- left_join(data_stream, stream_spatial_coordinates, by = "station")
+  data_stream <- as.data.frame(data_stream)
+  data_stream$type <- "stream"
+  data_stream <- data_stream %>% dplyr::select(type, station, opcod, year, dbo, temp, connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl, lat, long)
+  
+  
+  stream_spatial_coordinates <- unique(data_stream %>% dplyr::select(lat, long, type))
+```    
+ 
+# COMBINE LAKE AND RIVER DATA (i.e. NETWORK METRICS, TEMPERATURE AND BOD) 
+```{r combine networks, temperature and dbo data of lakes and rivers}   
+dataset_lake_stream <- rbind(data_lake, data_stream)
+
+rm(data_lake, data_stream, dbo_stream, env_lake, env_stream, lake_analysis, network_lake_metrics, network_stream_metrics, metric_lake, metric_stream, op_analysis, plando_spatial_coordinates, station_analysis, stream_spatial_coordinates, temp_stream, yearly_avg_water_chemical_stream, yearly_avg_water_temperature_stream)
+```
+  
+# EXTRACT AND ADD INFORMATION ABOUT TOPOGRAPHIC WATERSHED AND HYDROGRAPHIC BASINS
+# https://bdtopage.eaufrance.fr/page/donnees
+```{r extract information about topographic watershed and hydrographic basins and add these data to 'dataset_lake_stream'}  
+coordinates_freshwater_ecosystems <- unique(dataset_lake_stream %>% dplyr::select(type, station, lat, long))
+freshwater_ecosystems <- coordinates_freshwater_ecosystems
+coordinates(coordinates_freshwater_ecosystems) <- ~ long + lat
+proj4string(coordinates_freshwater_ecosystems) <- CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+
+
+# HYDROGRAPHIC BASINS
+ogrListLayers("../data/raw-data/BassinsHydrographiques_Métropole2019_BDTopage/BassinHydrographique.shp")
+BassinHydrographique <- readOGR("../data/raw-data/BassinsHydrographiques_Métropole2019_BDTopage/BassinHydrographique.shp", layer="BassinHydrographique") 
+plot(BassinHydrographique)
+summary(BassinHydrographique)
+BassinHydrographique <- spTransform(BassinHydrographique, CRS= CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+plot(BassinHydrographique)
+points(coordinates_freshwater_ecosystems)
+
+freshwater_ecosystems <- cbind(freshwater_ecosystems, over(coordinates_freshwater_ecosystems, BassinHydrographique))
+freshwater_ecosystems <- freshwater_ecosystems %>% dplyr::select(type, station, lat, long, CdBH, LbBH)
+unique(freshwater_ecosystems %>% dplyr::select(CdBH, LbBH))
+freshwater_ecosystems$LbBH[freshwater_ecosystems$LbBH == "RhÃ´ne-MÃ©diterranÃ©e"] <- "Rhone-Mediterranee"
+
+#LEM74 data are missing
+gDists <- gDistance(coordinates_freshwater_ecosystems[130,], BassinHydrographique, byid = TRUE)
+BassinHydrographique@data$CdBH[which.min(gDists)]
+BassinHydrographique@data$LbBH[which.min(gDists)]
+freshwater_ecosystems$CdBH[freshwater_ecosystems$station == "LEM74"] <- "06"
+freshwater_ecosystems$LbBH[freshwater_ecosystems$station == "LEM74"] <- "Rhone-Mediterranee"
+rm(gDists)
+#CdBH: code of hydrographic basin
+#LbBH: label of hydrographic basin 
+
+
+# TOPOGRAPHIC WATERSHED
+ogrListLayers("../data/raw-data/BassinVersantTopographique_Métropole2019_BDTopage/BassinVersantTopographique_FXX.shp")
+BassinVersant <- readOGR("../data/raw-data/BassinVersantTopographique_Métropole2019_BDTopage/BassinVersantTopographique_FXX.shp", layer="BassinVersantTopographique_FXX") 
+plot(BassinVersant)
+summary(BassinVersant)
+BassinVersant <- spTransform(BassinVersant, CRS= CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+plot(BassinVersant)
+points(coordinates_freshwater_ecosystems)
+
+freshwater_ecosystems <- cbind(freshwater_ecosystems, over(coordinates_freshwater_ecosystems, BassinVersant))
+colnames(freshwater_ecosystems)[18] <- "CdBH.2"
+freshwater_ecosystems <- freshwater_ecosystems %>% dplyr::select(type, station, lat, long, CdBH, LbBH, CdOH, TopoOH)
+nrow(unique(freshwater_ecosystems %>% dplyr::select(CdOH, TopoOH))) #572 BV sur 629 systèmes d'eau douce (lac + riviere)
+
+#LEM74 data are missing
+gDists <- gDistance(coordinates_freshwater_ecosystems[130,], BassinVersant, byid = TRUE)
+BassinVersant@data$CdOH[which.min(gDists)]
+BassinVersant@data$TopoOH[which.min(gDists)]
+freshwater_ecosystems$CdOH[freshwater_ecosystems$station == "LEM74"] <- "06B0000002150460899"
+freshwater_ecosystems$TopoOH[freshwater_ecosystems$station == "LEM74"] <- "Le lac LÃ©man de la Morge au torrent de la Dranse"
+#CdOH: Code of topographic watershed
+#TopoOH: Toponym of topographic watershed
+
+
+# ALTITUDE
+alt <- getData('alt', country = 'FRA', mask = FALSE) #'alt' stands for altitude (elevation); the data were aggregated from SRTM 90 m resolution data between -60 and 60 latitude.
+freshwater_ecosystems <- cbind(freshwater_ecosystems, as.data.frame(raster::extract(alt, coordinates_freshwater_ecosystems)))
+colnames(freshwater_ecosystems)[9] <- "altitude"
+
+freshwater_ecosystems$altitude <- NA
+
+for (i in 1:nrow(freshwater_ecosystems)) {
+  
+  srtm <- getData('SRTM', lon = freshwater_ecosystems[i, 4], lat = freshwater_ecosystems[i, 3]) #'SRTM' refers to the hole-filled CGIAR-SRTM (90 m resolution).
+  freshwater_ecosystems[i, 9] <- raster::extract(srtm, coordinates_freshwater_ecosystems[i,])
+  
+}
+rm(i)
+
+# Combine datasets
+dataset_lake_stream <- left_join(dataset_lake_stream, freshwater_ecosystems %>% dplyr::select(lat, long, CdBH, LbBH, CdOH, TopoOH, altitude), by = c("lat" = "lat", "long" = "long"))
+rm(alt, BassinHydrographique, BassinVersant, coordinates_freshwater_ecosystems, freshwater_ecosystems, gDists, srtm)
+```
+  
+# EXTRACT AND ADD INFORMATION ABOUT DISSOLVED OXYGEN, TOTAL NITROGEN, AND TOTAL PHOSPHORUS
+```{r extract information about dissolved oxygen, total nitrogen, and total phosphorus and add these data to 'dataset_lake_stream'}  
+myload(env_lake, env_stream, dir = mypath("outputs"))    
+env_lake <- env_lake %>% dplyr::select(opcod, oxygen, nitrogen, phosphore)
+env_stream <- env_stream %>% dplyr::select(opcod, oxygen, nitrogen, phosphore)
+supp_env_data <- rbind(env_lake, env_stream)
+dataset_lake_stream <- left_join(dataset_lake_stream, supp_env_data, by = "opcod")
+rm(env_lake, env_stream, supp_env_data)
+```
