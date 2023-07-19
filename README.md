@@ -27,3 +27,9 @@ This repository is structured as follow:
 <br />
 * Install (if necessary) and load all required packages
 * Load all required functions  
+
+## Additional resources
+* [Bonnaffé *et al.* (2021)](https://doi.org/10.1111/oik.08173)
+* [Danet *et al.* (2021)](https://doi.org/10.1111/ele.13857)
+* [SizeTrophicInteractions](https://github.com/alaindanet/SizeTrophicInteractions) to compile and estimate (if necessary) of the individual body size of the fish.
+
