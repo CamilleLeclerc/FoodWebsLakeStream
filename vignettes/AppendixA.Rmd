@@ -1,6 +1,6 @@
 ---
 title: "**Appendix A**"
-subtitle: "*Warming and enrichment interact to drive food-web simplification in freshwater systems*"
+subtitle: "*The interaction between warming and enrichment accelerates food-web simplification in freshwater systems*"
 author: |
   | Willem Bonnaffé, Alain Danet, Camille Leclerc, Victor Frossard, 
   | Eric Edeline and Arnaud Sentis
