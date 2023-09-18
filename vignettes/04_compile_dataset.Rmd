@@ -234,7 +234,7 @@ rm(alt, BassinHydrographique, BassinVersant, coordinates_freshwater_ecosystems, 
   
 # EXTRACT AND ADD INFORMATION ABOUT DISSOLVED OXYGEN, TOTAL NITROGEN, AND TOTAL PHOSPHORUS
 ```{r extract information about dissolved oxygen, total nitrogen, and total phosphorus and add these data to 'dataset_lake_stream'}  
-myload(env_lake, env_stream, dir = mypath("outputs"))    
+myload(env_lake, env_stream, dir = mypath("data/derived-data"))    
 env_lake <- env_lake %>% dplyr::select(opcod, oxygen, nitrogen, phosphore)
 env_stream <- env_stream %>% dplyr::select(opcod, oxygen, nitrogen, phosphore)
 supp_env_data <- rbind(env_lake, env_stream)

@@ -11,7 +11,7 @@ This repository is structured as follow:
 │ &nbsp;  &nbsp;  &nbsp; └── :file_folder: [**raw-data/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/data/raw-data) *(read-only data and should never be changed)*       
 ├── :file_folder: [**doc/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/doc) *(contains documents related to the project (e.g., pdf from an .Rmd file))*  
 ├── :file_folder: [**figs/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/figs) *(contains figures related to the project)*   
-├── :file_folder: [**outputs/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/outputs) *(contains final datasets and results)*   
+├── :file_folder: [**statistical_analysis/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/statistical_analysis) *(contains all files related to statistical analysis)*   
 ├── :file_folder: [**R/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/main/R) *(contains the R functions)*  
 └── :file_folder: [**vignettes/**](https://github.com/CamilleLeclerc/FoodWebsRiverLake/tree/master/vignettes) *(contains Rmd files for running specific analysis)*  
 <br />
