@@ -1,5 +1,5 @@
 # FoodWebsRiverLake
-📦 Data and R code used in Bonnaffé *et al.* (in prep) to explore the individual and interactive effects of enrichment and temperature on food-web structure in lakes and rivers.
+📦 Data and R code used in Bonnaffé *et al.* (in prep) to explore the individual and interactive effects of enrichment and temperature on food-web structure in lakes and streams.
 <br />
 
 ## Repository overview
