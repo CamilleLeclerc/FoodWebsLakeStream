@@ -15,7 +15,7 @@ This repository is structured as follow:
 ├── :file_folder: [**figs/**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/main/figs) *(contains figures related to the project)*   
 ├── :file_folder: [**statistical_analysis/**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/main/statistical_analysis) *(contains all files related to statistical analysis)*   
 ├── :file_folder: [**R/**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/main/R) *(contains the R functions)*  
-└── :file_folder: [**vignettes/**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/master/vignettes) *(contains Rmd files for running specific analysis)*  
+└── :file_folder: [**vignettes/**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/master/vignettes) *(contains Rmd files for running specific analysis (e.g. metaweb reconstruction))*  
 <br />
 
 ## Running instructions
