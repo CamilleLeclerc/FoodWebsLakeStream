@@ -1,7 +1,7 @@
 # raw-data/
 
 ## Folder content
-This folder contains the following files:  
+This folder contains the following files and folders:  
 - `BassinVersantTopographique_Métropole2019_BDTopage` – a folder including spatial files of [topographic watersheds](https://www.sandre.eaufrance.fr/atlas/srv/fre/catalog.search#/metadata/6571f89a-0608-49a2-9ab5-f005d842e81f).  
 
 - `BassinsHydrographiques_Métropole2019_BDTopage` – a folder including spatial files of [hydrographic basins](https://www.sandre.eaufrance.fr/atlas/srv/fre/catalog.search#/metadata/4714a793-dcd8-4528-bd6a-80bfdbee9728).  
