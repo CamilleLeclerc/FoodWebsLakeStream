@@ -4,13 +4,13 @@
 This folder contains the following files:  
 - `BassinVersantTopographique_Métropole2019_BDTopage` – a folder including spatial files of [topographic watersheds](https://www.sandre.eaufrance.fr/atlas/srv/fre/catalog.search#/metadata/6571f89a-0608-49a2-9ab5-f005d842e81f).  
 
-- `BassinsHydrographiques_Métropole2019_BDTopage` – a folder including spatial files of (hydrographic basins)[https://www.sandre.eaufrance.fr/atlas/srv/fre/catalog.search#/metadata/4714a793-dcd8-4528-bd6a-80bfdbee9728].  
+- `BassinsHydrographiques_Métropole2019_BDTopage` – a folder including spatial files of [hydrographic basins](https://www.sandre.eaufrance.fr/atlas/srv/fre/catalog.search#/metadata/4714a793-dcd8-4528-bd6a-80bfdbee9728).  
 
 - `environment` – a folder including raw data for environmental variables (BOD and temperature) measured in lakes and streams.  
 
-- `ne_10m_lakes` – a folder including spatial files of (natural and artificial lakes from *Natural Earth*)[https://www.naturalearthdata.com/downloads/10m-physical-vectors/].  
+- `ne_10m_lakes` – a folder including spatial files of [natural and artificial lakes from *Natural Earth*](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).  
 
-- `ne_10m_rivers_lake_centerlines` – a folder including spatial files of (rivers + lake centerlines from *Natural Earth*)[https://www.naturalearthdata.com/downloads/10m-physical-vectors/].  
+- `ne_10m_rivers_lake_centerlines` – a folder including spatial files of [rivers + lake centerlines from *Natural Earth*](https://www.naturalearthdata.com/downloads/10m-physical-vectors/).  
 
 - `code_species_river_lake.txt` – (66 lines x 6 columns) – includes the species code (`sp_code`), as well as the Latin names of stream species (`sp_river`) and lake species (`sp_lake`) if present in the ecosystem.  
 
