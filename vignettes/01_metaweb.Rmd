@@ -29,7 +29,8 @@ source_dir(mypath("R"))
 ```
 
 ```{r load}
-myload(fish_diet_shift, ind_size_lake, dir = mypath("data/raw-data"))
+fish_diet_shift <- read.csv("../data/raw-data/fish_diet_shift.csv")
+ind_size_lake <- read.csv("../data/raw-data/ind_size_lake.csv")
 ```
   
 &nbsp;  
@@ -79,8 +80,10 @@ There are `r length(pond_species_not_in_diet)` that are not in diet data,
 # Build the metaweb
 
 ```{r prep data}
-myload(pred_win, fish_diet_shift, resource_diet_shift,
-  dir = mypath("data/raw-data"))
+pred_win <- read.csv("../data/raw-data/pred_win.csv")
+fish_diet_shift <- read.csv("../data/raw-data/fish_diet_shift.csv")
+resource_diet_shift <- read.csv("../data/raw-data/resource_diet_shift.csv")
+
 
 fish_diet_shift %<>%
   select(-species_name) %>%

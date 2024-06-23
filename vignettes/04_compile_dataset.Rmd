@@ -34,7 +34,8 @@ source(mypath("R", "misc.R"))
 
 # EXTRACT AND COMPILE DATA (i.e. NETWORK METRICS, TEMPERATURE AND BOD) RELATED TO LAKES 
 ```{r extract and compile networks metrics, temperature and dbo data of lakes}
-myload(yearly_avg_dbo5_lake, yearly_avg_temp_lake, dir = mypath("data/raw-data/environment"))    
+yearly_avg_dbo5_lake <- read.csv("../data/raw-data/environment/yearly_avg_dbo5_lake.csv")
+yearly_avg_temp_lake <- read.csv("../data/raw-data/environment/yearly_avg_temp_lake.csv")
 myload(network_lake_metrics, dir = mypath("data/derived-data"))
 plando_spatial_coordinates <- read_csv("../data/raw-data/plando_spatial_coordinates.csv")
 colnames(plando_spatial_coordinates)[1] <- "code_lac"
@@ -88,8 +89,10 @@ rm(dbo_lake, yearly_avg_dbo5_lake, temp_lake, yearly_avg_temp_lake)
  
 # EXTRACT AND COMPILE DATA (i.e. NETWORK METRICS, TEMPERATURE AND BOD) RELATED TO RIVERS  
 ```{r extract and compile networks, temperature and dbo data of rivers} 
-myload(op_analysis, station_analysis, dir = mypath("data/raw-data"))
-myload(yearly_avg_water_chemical_stream, yearly_avg_water_temperature_stream, dir = mypath("data/raw-data/environment"))    
+op_analysis <- read.csv("../data/raw-data/op_analysis.csv")
+station_analysis <- read.csv("../data/raw-data/station_analysis.csv", sep=";")
+yearly_avg_water_chemical_stream <- read.csv("../data/raw-data/environment/yearly_avg_water_chemical_stream.csv")
+yearly_avg_water_temperature_stream <- read.csv("../data/raw-data/environment/yearly_avg_water_temperature_stream.csv")
 myload(network_stream_metrics, dir = mypath("data/derived-data"))
   
   
@@ -130,12 +133,11 @@ rm(i)
 metric_stream <- network_stream_metrics %>% dplyr::select(connectance, richness, nbnode, w_trph_lvl_avg, max_troph_lvl)
 
   
-  stream_spatial_coordinates <- station_analysis %>%
-    mutate(lat = unlist(map(station_analysis$geometry, 2)),
-           long = unlist(map(station_analysis$geometry, 1)))
-  stream_spatial_coordinates <- as.data.frame(stream_spatial_coordinates)
+  stream_spatial_coordinates <- station_analysis
   colnames(stream_spatial_coordinates)[1] <- "station"
-  
+  colnames(stream_spatial_coordinates)[2] <- "station.name"
+  stream_spatial_coordinates$station <- as.numeric(stream_spatial_coordinates$station)
+
   
   data_stream <- left_join(env_stream, metric_stream, by = "opcod")
   data_stream <- left_join(data_stream, stream_spatial_coordinates, by = "station")
@@ -213,23 +215,23 @@ freshwater_ecosystems$TopoOH[freshwater_ecosystems$station == "LEM74"] <- "Le la
 
 
 # ALTITUDE
-alt <- getData('alt', country = 'FRA', mask = FALSE) #'alt' stands for altitude (elevation); the data were aggregated from SRTM 90 m resolution data between -60 and 60 latitude.
-freshwater_ecosystems <- cbind(freshwater_ecosystems, as.data.frame(raster::extract(alt, coordinates_freshwater_ecosystems)))
-colnames(freshwater_ecosystems)[9] <- "altitude"
+#alt <- getData('alt', country = 'FRA', mask = FALSE) #'alt' stands for altitude (elevation); the data were aggregated from SRTM 90 m resolution data between -60 and 60 latitude.
+#freshwater_ecosystems <- cbind(freshwater_ecosystems, as.data.frame(raster::extract(alt, coordinates_freshwater_ecosystems)))
+#colnames(freshwater_ecosystems)[9] <- "altitude"
 
-freshwater_ecosystems$altitude <- NA
+#freshwater_ecosystems$altitude <- NA
 
-for (i in 1:nrow(freshwater_ecosystems)) {
+#for (i in 1:nrow(freshwater_ecosystems)) {
   
-  srtm <- getData('SRTM', lon = freshwater_ecosystems[i, 4], lat = freshwater_ecosystems[i, 3]) #'SRTM' refers to the hole-filled CGIAR-SRTM (90 m resolution).
-  freshwater_ecosystems[i, 9] <- raster::extract(srtm, coordinates_freshwater_ecosystems[i,])
+#  srtm <- getData('SRTM', lon = freshwater_ecosystems[i, 4], lat = freshwater_ecosystems[i, 3]) #'SRTM' refers to the hole-filled CGIAR-SRTM (90 m resolution).
+#  freshwater_ecosystems[i, 9] <- raster::extract(srtm, coordinates_freshwater_ecosystems[i,])
   
-}
-rm(i)
+#}
+#rm(i)
 
 # Combine datasets
-dataset_lake_stream <- left_join(dataset_lake_stream, freshwater_ecosystems %>% dplyr::select(lat, long, CdBH, LbBH, CdOH, TopoOH, altitude), by = c("lat" = "lat", "long" = "long"))
-rm(alt, BassinHydrographique, BassinVersant, coordinates_freshwater_ecosystems, freshwater_ecosystems, gDists, srtm)
+#dataset_lake_stream <- left_join(dataset_lake_stream, freshwater_ecosystems %>% dplyr::select(lat, long, CdBH, LbBH, CdOH, TopoOH, altitude), by = c("lat" = "lat", "long" = "long"))
+#rm(alt, BassinHydrographique, BassinVersant, coordinates_freshwater_ecosystems, freshwater_ecosystems, gDists, srtm)
 ```
   
 # EXTRACT AND ADD INFORMATION ABOUT DISSOLVED OXYGEN, TOTAL NITROGEN, AND TOTAL PHOSPHORUS

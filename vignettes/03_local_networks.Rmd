@@ -27,7 +27,9 @@ source_dir(mypath("R"))
 ```
 
 ```{r load}
-myload(ind_size_lake, ind_size_stream, dir = mypath("data/raw-data"))
+ind_size_lake <- read.csv("../data/raw-data/ind_size_lake.csv")
+ind_size_stream <- read.csv("../data/raw-data/ind_size_stream.csv")
+
 myload(metaweb_lake, metaweb_stream, dir = mypath("data/derived-data"))
 ```
 
