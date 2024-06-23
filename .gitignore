@@ -12,3 +12,15 @@
 00_get_stream_env_data.R
 starting.R
 rscripts
+./data/raw-data/fish_diet_shift.rda
+./data/raw-data/ind_size_lake.rda
+./data/raw-data/ind_size_stream.rda
+./data/raw-data/op_analysis.rda
+./data/raw-data/pred_win.rda
+./data/raw-data/resource_diet_shift.rda
+./data/raw-data/sampling_protocol.rda
+./data/raw-data/station_analysis.rda
+./data/raw-data/environment/yearly_avg_dbo5_lake.rda
+./data/raw-data/environment/yearly_avg_temp_lake.rda
+./data/raw-data/environment/yearly_avg_water_chemical_stream.rda
+./data/raw-data/environment/yearly_avg_water_temperature_stream.rda
