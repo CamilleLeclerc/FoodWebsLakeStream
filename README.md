@@ -18,6 +18,9 @@ This repository is structured as follow:
 └── :file_folder: [**vignettes/**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/master/vignettes) *(contains Rmd files for running specific analysis (e.g. metaweb reconstruction))*  
 <br />
 
+Please note that the [**statistical_analysis folder**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/main/statistical_analysis) includes a README.md file with specific instructions for analysis. Additionally, both the [**derived-data folder**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/master/data/derived-data) and the [**raw-data folder**](https://github.com/CamilleLeclerc/FoodWebsLakeStream/tree/master/data/raw-data) contain their own README.md files, which provide details about the data files.
+<br />
+
 ## Running instructions
 **Used softwares:**  
 <br />
