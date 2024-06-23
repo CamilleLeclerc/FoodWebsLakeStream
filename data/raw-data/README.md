@@ -32,6 +32,6 @@ This folder contains the following files and folders:
 
 - `sampling_protocol.csv` – (11,924 lines x 13 columns) – includes the code of the sampling station (`code_lac`), the sampling year (`camp_annee`), the sampling event ID (`id_campagne`), the fish sampling ID (`id_prelev_poisson`), the sampling point ID where the fish sampling was conducted (`id_point_prelev`), the deployment date (`date_pose`), the deployment time (`heure_pose`), the retrieval date (`date_releve`), the retrieval time (`heure_releve`), the minimum depth at deployment point (`prof_min_point_pose`), the maximum depth at deployment point (`prof_max_point_pose`), the fishing gear code (`cd_engin_peche`), the sampling stratum (`strate`).  
 
-- `station_analysis.csv` – (422 lines x 4 columns) – includes the code of the sampling station (`id`), the name of the sampling station (`precise_location`), the municipality code (`com_code_insee`), and spatial information (`geometry`).  
+- `station_analysis.csv` – (422 lines x 5 columns) – includes the code of the sampling station (`id`), the name of the sampling station (`precise_location`), the municipality code (`com_code_insee`), and spatial information (`lat`, `long`).  
 
 - `weight_length_coef.csv` – (50 lines x 4 columns) – includes the species code (`weight_length_coef`) and associated length-weight relationship coefficients (`a` and `b`) and source (`source`).
