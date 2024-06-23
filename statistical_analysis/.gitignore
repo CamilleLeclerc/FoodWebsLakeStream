@@ -1,3 +1,0 @@
-.DS_Store
-# find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch # to remove existing .DS_store
-.ipynb_checkpoints
